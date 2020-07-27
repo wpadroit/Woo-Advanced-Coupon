@@ -1,2 +1,9 @@
-# Woo-Advanced-Coupon
-Woo Advanced Coupon
+# Woo Advance Coupon
+
+WooCommerce Missing Coupon Features
+
+### Changelog
+
+= 1.0.0 =
+
+- Initial release
