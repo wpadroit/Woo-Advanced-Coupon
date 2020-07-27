@@ -169,3 +169,15 @@ pre.wac_pre_column {
   padding: 3px 8px;
   border-radius: 3px;
 }
+
+@media (max-width : 850px) {
+  .wac-filter {
+    margin-bottom: 50px !important;
+  }
+
+  .wac-col-3,
+  .wac-bulk-list,
+  .wac-filter-list {
+    width: 100% !important;
+  }
+}
