@@ -76,7 +76,13 @@ export default {
       axios
         .post(wac_helper_obj.ajax_url, Qs.stringify(formData))
         .then((response) => {
-          root.options = response.data;
+          if (Array.isArray(response.data)) {
+            root.options = response.data;
+          } else {
+            if (response.data.label !== undefined) {
+              root.options.push(response.data);
+            }
+          }
         })
         .catch((error) => {
           console.log(error);
