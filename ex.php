@@ -1,13 +1,4 @@
 <?php
-/*
-Plugin Name: Wholesale Prices - Show Original Prices
-Plugin URI:  https://www.damiencarbery.com/2019/07/show-regular-price-in-cart-and-checkout-when-using-woocommerce-wholesale-prices/
-Description: Show the original prices in the Cart and Checkout pages when using WooCommerce Wholesale Prices plugin.
-Author: Damien Carbery
-Version: 0.3
-
-$Id: wwp-show-orig-prices.php 4747 2019-07-10 15:13:51Z damien $
-*/
 
 
 add_filter('woocommerce_cart_product_price', 'dcwd_cart_product_price', 10, 2);

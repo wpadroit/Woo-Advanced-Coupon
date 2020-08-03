@@ -2,9 +2,7 @@
 
 namespace WpAdroit\Wac_Coupon\Frontend;
 
-use WC_Cart;
 use WC_Coupon;
-use WC_Discounts;
 use WpAdroit\Wac_Coupon\Frontend\Helpers\Validator;
 
 /**
@@ -12,18 +10,17 @@ use WpAdroit\Wac_Coupon\Frontend\Helpers\Validator;
  */
 class Wac_front
 {
+    public $discount_amount;
     public function __construct()
     {
         // add_action("woocommerce_add_to_cart", [$this, "wac_apply_coupon"]);
-        // coupon set cart product pricing 👇👇👇
+        // coupon set cart product pricing
         // add_action("woocommerce_before_calculate_totals", [$this, "wac_product_discount"], 20, 1);
-        // check coupon is valid 👇👇👇
+        // check coupon is valid 
         add_filter("woocommerce_coupon_is_valid", [$this, "wac_woocommerce_coupon_is_valid"], 10, 2);
-        // OverWrite Coupon Amount 👇👇👇
+        // OverWrite Coupon Amount
         add_action('woocommerce_cart_calculate_fees', [$this, "wac_coupon_amount_overwrite"]);
-        // Set Cart Total 👇👇👇
-        add_filter('woocommerce_cart_subtotal', [$this, "wac_cart_subtotal"], 10, 3);
-        // display products price with regular price 👇👇👇
+        // display products price with regular price
         add_filter('woocommerce_cart_product_price', [$this, "wac_filter_cart_product_pricing"], 10, 2);
     }
 
@@ -55,7 +52,16 @@ class Wac_front
                     $cartProduct["data"]->set_price((int)($price - $amount));
                 } else {
                     foreach ($wac_filter["items"] as $item) {
-                        var_dump($item);
+                        $cart_product_id = $cartProduct["data"]->get_id();
+                        if ((int)$item["value"] == $cart_product_id) {
+                            $price = $cartProduct["data"]->get_price();
+                            if ($wac_discount["type"] == "percentage") {
+                                $amount = ($wac_discount["value"] / 100) * $price;
+                            } else {
+                                $amount = $wac_discount["value"];
+                            }
+                            $cartProduct["data"]->set_price((int)($price - $amount));
+                        }
                     }
                 }
             }
@@ -64,7 +70,8 @@ class Wac_front
 
     public function wac_cart_subtotal($subtotal, $compound, $cart)
     {
-        $store_credit = $this->wac_coupon_amount_overwrite();
+        // $store_credit = $this->wac_coupon_amount_overwrite();
+        $store_credit = $this->discount_amount;
         if ($store_credit > 0) {
             $cart->set_discount_total($store_credit);
             $cart->set_total($cart->get_subtotal() - $store_credit);
@@ -76,6 +83,7 @@ class Wac_front
     {
         $coupons = WC()->cart->get_applied_coupons();
         $cart = WC()->cart;
+        $cartProducts = $cart->get_cart();
         $store_coupons = [];
         $discount_amount = 0;
         foreach ($coupons as $coupon) {
@@ -85,6 +93,9 @@ class Wac_front
             $wac_id = $post_meta["list_id"];
             $wac_main = get_post_meta($wac_id, "wac_coupon_main", true);
             $wac_discounts = get_post_meta($wac_id, "wac_coupon_discounts", true);
+
+            $wac_filters = get_post_meta($post_meta["list_id"], "wac_filters", true);
+
             $wac_coupon_type = $wac_main["type"];
             if ($wac_coupon_type == "cart") {
                 switch ($wac_discounts["type"]) {
@@ -104,9 +115,64 @@ class Wac_front
                 }
                 $discount_amount += $discount_total;
             } else if ($wac_coupon_type == "product") {
-                $this->wac_product_discount(WC()->cart, $couponData);
-                $store_coupons[$coupon] = $couponData->get_amount();
-                $discount_amount += $couponData->get_amount();
+                $product_adj_amount = 0;
+                foreach ($wac_filters as $wac_filter) {
+                    foreach ($cartProducts as $cartProduct) {
+                        if ($wac_filter["type"] == "all_products") {
+                            $price = $cartProduct["data"]->get_price();
+                            if ($wac_discounts["type"] == "percentage") {
+                                $amount = ($wac_discounts["value"] / 100) * $price;
+                            } else {
+                                $amount = $wac_discounts["value"];
+                            }
+                            $cartProduct["data"]->set_price((int)($price - $amount));
+                            $product_adj_amount += $amount;
+                        } else {
+                            foreach ($wac_filter["items"] as $item) {
+                                if ($item["value"] == $cartProduct["data"]->get_id()) {
+                                    $price = $cartProduct["data"]->get_price();
+                                    if ($wac_discounts["type"] == "percentage") {
+                                        $amount = ($wac_discounts["value"] / 100) * $price;
+                                    } else {
+                                        $amount = $wac_discounts["value"];
+                                    }
+                                    $cartProduct["data"]->set_price((int)($price - $amount));
+                                    $product_adj_amount += $amount;
+                                }
+                            }
+                        }
+                    }
+                }
+                if ($post_meta["overwrite_discount"] == "yes") {
+                    $store_coupons[$coupon] = $product_adj_amount;
+                    $discount_amount += $product_adj_amount;
+                } else {
+                    $store_coupons[$coupon] = $couponData->get_amount();
+                    $cart->add_fee("product adjustment", -$product_adj_amount);
+                    $discount_amount += $couponData->get_amount();
+                    $discount_amount += $product_adj_amount;
+                }
+            } else if ($wac_coupon_type == "bulk") {
+                foreach ($wac_discounts as $wac_discount) {
+                    if ($wac_discount["min"] <= $cart->subtotal && $wac_discount["max"] >= $cart->subtotal) {
+                        switch ($wac_discount["type"]) {
+                            case 'percentage':
+                                $discount_total = ($wac_discount["value"] / 100) * $cart->subtotal;
+                                break;
+                            case 'fixed':
+                                $discount_total = $wac_discount["value"];
+                                break;
+                        }
+                        if ($post_meta["overwrite_discount"] === null) {
+                            $store_coupons[$coupon] = $couponData->get_amount();
+                            $cart->add_fee("Bulk Discount", -$discount_total);
+                            $discount_amount += $couponData->get_amount();
+                        } else {
+                            $store_coupons[$coupon] = $discount_total;
+                        }
+                        $discount_amount += $discount_total;
+                    }
+                }
             }
         }
 
@@ -116,7 +182,9 @@ class Wac_front
         }
         $cart->applied_coupons = $store_keys;
         $cart->coupon_discount_totals = $store_coupons;
-        return $discount_amount;
+        $cart->set_total(24);
+        $this->discount_amount = $discount_amount;
+        add_filter('woocommerce_cart_subtotal', [$this, "wac_cart_subtotal"], 10, 3);
     }
 
     public function wac_woocommerce_coupon_is_valid($valid, $coupon)
