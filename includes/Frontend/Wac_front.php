@@ -14,14 +14,30 @@ class Wac_front
     public function __construct()
     {
         // add_action("woocommerce_add_to_cart", [$this, "wac_apply_coupon"]);
-        // coupon set cart product pricing
-        // add_action("woocommerce_before_calculate_totals", [$this, "wac_product_discount"], 20, 1);
         // check coupon is valid 
         add_filter("woocommerce_coupon_is_valid", [$this, "wac_woocommerce_coupon_is_valid"], 10, 2);
         // OverWrite Coupon Amount
         add_action('woocommerce_cart_calculate_fees', [$this, "wac_coupon_amount_overwrite"]);
         // display products price with regular price
         add_filter('woocommerce_cart_product_price', [$this, "wac_filter_cart_product_pricing"], 10, 2);
+        add_action('init', function () {
+            if (isset($_GET['coupon_code'])) {
+                $coupon_code = esc_attr($_GET['coupon_code']);
+                WC()->session->set('coupon_code', $coupon_code);
+            }
+        });
+        add_action("woocommerce_before_cart", function () {
+            $coupons = WC()->cart->get_applied_coupons();
+            $code = WC()->session->get('coupon_code');
+            if ($code) {
+                if (in_array($code, $coupons)) {
+                    WC()->session->__unset('coupon_code');
+                } else {
+                    WC()->cart->apply_coupon($code);
+                    WC()->session->__unset('coupon_code');
+                }
+            }
+        });
     }
 
     public function wac_filter_cart_product_pricing($formatted_price, $product)
@@ -182,7 +198,6 @@ class Wac_front
         }
         $cart->applied_coupons = $store_keys;
         $cart->coupon_discount_totals = $store_coupons;
-        $cart->set_total(24);
         $this->discount_amount = $discount_amount;
         add_filter('woocommerce_cart_subtotal', [$this, "wac_cart_subtotal"], 10, 3);
     }

@@ -4,6 +4,7 @@ namespace WpAdroit\Wac_Coupon;
 
 use WpAdroit\Wac_Coupon\Admin\Wac_Coupon;
 use WpAdroit\Wac_Coupon\Admin\Wac_Panels;
+use WpAdroit\Wac_Coupon\Admin\Wac_Setting;
 
 /**
  * The admin class
@@ -19,6 +20,7 @@ class Admin
         $this->dispatch_actions();
         new Wac_Coupon;
         new Wac_Panels;
+        new Wac_Setting;
     }
 
     /**
