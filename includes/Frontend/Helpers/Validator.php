@@ -15,10 +15,27 @@ class Validator
     {
         $result = self::wac_fiter_validate($coupon, $post_id) ? true : false;
         if ($result) {
-            $result = self::wac_rules_validate($coupon, $post_id) ? self::wac_rules_validate($coupon, $post_id) : false;
+            $result = self::wac_multi_validate($coupon, $post_id) ? true : false;
+        }
+        if ($result) {
+            $result = self::wac_rules_validate($coupon, $post_id) ? true : false;
         }
         return $result;
     }
+
+    static public function wac_multi_validate($coupon, $post_id)
+    {
+        $wac_woo_setting_multi = get_option("wac_woo_setting_multi");
+        $applied_coupons = WC()->cart->get_applied_coupons();
+        if (count($applied_coupons) > 1) {
+            if ($wac_woo_setting_multi == "no" & $applied_coupons[0] != $coupon) {
+                wc_clear_notices();
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     static public function basic_validate($coupon)
     {

@@ -3,6 +3,7 @@
 namespace WpAdroit\Wac_Coupon;
 
 use WpAdroit\Wac_Coupon\Frontend\Wac_front;
+use WpAdroit\Wac_Coupon\Frontend\Wac_url;
 
 /**
  * Frontend handler class
@@ -15,5 +16,6 @@ class Frontend
     public function __construct()
     {
         new Wac_front;
+        new Wac_url;
     }
 }

@@ -45,15 +45,6 @@ class Wac_Setting
                 'desc' => __('Set "no" , if you never want to apply Multi coupon in cart', 'wac'),
                 'id'   => 'wac_woo_setting_multi'
             ),
-            'wac_woo_setting_multi_wac' => array(
-                'name' => __('Woo Coupon\'s Multi', 'wac'),
-                'type' => 'select',
-                'options' => [
-                    "yes" => "Yes",
-                    "no" => "No",
-                ],
-                'id'   => 'wac_woo_setting_multi_wac'
-            ),
             'wac_woo_setting_url' => array(
                 'name' => __('Coupon Url slug Name', 'wac'),
                 'type' => 'text',
