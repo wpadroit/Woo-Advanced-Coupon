@@ -22,6 +22,8 @@ class Wac_front
         add_filter('woocommerce_cart_product_price', [$this, "wac_filter_cart_product_pricing"], 10, 2);
         // woocommerce set product price as product adjustment
         add_filter("woocommerce_product_get_price", [$this, "wac_update_product_price"], 10, 2);
+        // woocommerce change product coupon html
+        add_filter('woocommerce_cart_totals_coupon_html', [$this, "wac_change_product_coupon_html"], 30, 3);
     }
 
     /**
@@ -92,9 +94,20 @@ class Wac_front
                 }
                 $discount_amount += $discount_total;
             } else if ($wac_coupon_type == "product") {
-                $discount_total = $couponData->get_amount();
-                $store_coupons[$coupon] = $discount_total;
-                $discount_amount += $discount_total;
+                if ($post_meta["overwrite_discount"] === null) {
+                    $discount_total = $couponData->get_amount();
+                    $store_coupons[$coupon] = $discount_total;
+                    $discount_amount += $discount_total;
+                } else {
+                    // wp_register_style('dummy-handle', false);
+                    // wp_enqueue_style('dummy-handle');
+                    // wp_add_inline_style(
+                    //     'dummy-handle',
+                    //     '.coupon-' . $coupon . ' { display: none; }'
+                    // );
+                    $store_coupons[$coupon] = "product discount";
+                    $discount_amount += .001;
+                }
             } else if ($wac_coupon_type == "bulk") {
                 foreach ($wac_discounts as $wac_discount) {
                     if ($wac_discount["min"] <= $cart->subtotal && $wac_discount["max"] >= $cart->subtotal) {
@@ -191,6 +204,32 @@ class Wac_front
         }
         return $price;
     }
+
+    /**
+     * change product coupon html
+     *
+     * @return coupon_html
+     **/
+    public function wac_change_product_coupon_html($coupon_html, $coupon, $discount_amount_html)
+    {
+        $post_meta = get_post_meta($coupon->get_id(), "wac_coupon_panel", true);
+        if (empty($post_meta["list_id"])) {
+            return $coupon_html;
+        }
+        $wac_main = get_post_meta($post_meta["list_id"], "wac_coupon_main", true);
+        $wac_discounts = get_post_meta($post_meta["list_id"], "wac_coupon_discounts", true);
+
+        if ($wac_main["type"] === "product") {
+            if ($wac_discounts["type"] == "percentage") {
+                $discount_amount_html = '[on products] <span class="woocommerce-Price-amount amount">' . $wac_discounts["value"] . '%</span>';
+            } else {
+                $discount_amount_html = '[on products] <span class="woocommerce-Price-amount amount">' . get_woocommerce_currency_symbol() . ' ' . $wac_discounts["value"] . '</span>';
+            }
+            $coupon_html          = $discount_amount_html . ' <a class="woocommerce-remove-coupon" href="' . esc_url(add_query_arg('remove_coupon', urlencode($coupon->get_code()), defined('WOOCOMMERCE_CHECKOUT') ? wc_get_checkout_url() : wc_get_cart_url())) . '" class="woocommerce-remove-coupon" data-coupon="' . esc_attr($coupon->get_code()) . '">' . __('[Remove]', 'woocommerce') . '</a>';
+        }
+        return $coupon_html;
+    }
+
 
     /**
      * WooCommerce Custom Validator
