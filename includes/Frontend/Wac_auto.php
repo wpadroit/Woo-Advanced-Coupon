@@ -35,6 +35,9 @@ class Wac_auto
      **/
     public function wac_first_order()
     {
+        if (!is_user_logged_in())
+            return;
+
         $user = wp_get_current_user();
         $user_id = $user->ID;
         $coupon = get_option("wac_first_time_purchase_coupon");
