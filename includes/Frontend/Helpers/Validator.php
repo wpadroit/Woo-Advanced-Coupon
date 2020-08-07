@@ -11,14 +11,14 @@ use WC_Discounts;
 class Validator
 {
 
-    static public function check($coupon, $post_id)
+    static public function check($coupon = null, $post_id = null, $wac_id = null)
     {
-        $result = self::wac_fiter_validate($coupon, $post_id) ? true : false;
+        $result = self::wac_fiter_validate($coupon, $post_id, $wac_id) ? true : false;
         if ($result) {
             $result = self::wac_multi_validate($coupon, $post_id) ? true : false;
         }
         if ($result) {
-            $result = self::wac_rules_validate($coupon, $post_id) ? true : false;
+            $result = self::wac_rules_validate($coupon, $post_id, $wac_id) ? true : false;
         }
         return $result;
     }
@@ -36,30 +36,19 @@ class Validator
         return true;
     }
 
-
-    static public function basic_validate($coupon)
+    static public function wac_fiter_validate($coupon, $post_id, $wac_id)
     {
-        $coupon = new WC_Coupon($coupon);
-        $discounts = new WC_Discounts(WC()->cart);
-        $valid_response = $discounts->is_coupon_valid($coupon);
-        if (
-            is_wp_error($valid_response)
-        ) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    static public function wac_fiter_validate($coupon, $post_id)
-    {
-        $post_meta = get_post_meta($post_id, "wac_coupon_panel", true);
         $result = true;
-        if (empty($post_meta["list_id"])) {
-            return $result;
+        if ($wac_id == null) {
+            $post_meta = get_post_meta($post_id, "wac_coupon_panel", true);
+            if (empty($post_meta["list_id"])) {
+                return $result;
+            }
+            $filters = get_post_meta($post_meta["list_id"], "wac_filters", true);
+        } else {
+            $filters = get_post_meta($wac_id, "wac_filters", true);
         }
 
-        $filters = get_post_meta($post_meta["list_id"], "wac_filters", true);
 
         foreach ($filters as $filter) {
             if ($filter["type"] == "all_products") {
@@ -100,18 +89,26 @@ class Validator
         return $result;
     }
 
-    static function wac_rules_validate($coupon, $post_id)
+    static function wac_rules_validate($coupon, $post_id, $wac_id)
     {
         $result = true;
-        $post_meta = get_post_meta($post_id, "wac_coupon_panel", true);
-        if (empty($post_meta["list_id"])) {
-            return $result;
+        if ($wac_id == null) {
+            $post_meta = get_post_meta($post_id, "wac_coupon_panel", true);
+            if (empty($post_meta["list_id"])) {
+                return $result;
+            } else {
+                $rules = get_post_meta($post_meta["list_id"], "wac_coupon_rules", true);
+                if ($rules["rules"] == null) {
+                    return $result;
+                }
+            }
         } else {
-            $rules = get_post_meta($post_meta["list_id"], "wac_coupon_rules", true);
+            $rules = get_post_meta($wac_id, "wac_coupon_rules", true);
             if ($rules["rules"] == null) {
                 return $result;
             }
         }
+
 
         $relation = $rules["relation"];
 
@@ -274,5 +271,24 @@ class Validator
             }
         }
         return $total;
+    }
+
+    /**
+     * Default Basic Validator [ not used anywhere ]
+     *
+     * @return Boolean true / false
+     **/
+    static public function basic_validate($coupon)
+    {
+        $coupon = new WC_Coupon($coupon);
+        $discounts = new WC_Discounts(WC()->cart);
+        $valid_response = $discounts->is_coupon_valid($coupon);
+        if (
+            is_wp_error($valid_response)
+        ) {
+            return false;
+        } else {
+            return true;
+        }
     }
 }

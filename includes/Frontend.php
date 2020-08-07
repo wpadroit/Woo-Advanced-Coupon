@@ -2,6 +2,7 @@
 
 namespace WpAdroit\Wac_Coupon;
 
+use WpAdroit\Wac_Coupon\Frontend\Wac_auto;
 use WpAdroit\Wac_Coupon\Frontend\Wac_front;
 use WpAdroit\Wac_Coupon\Frontend\Wac_url;
 
@@ -17,5 +18,6 @@ class Frontend
     {
         new Wac_front;
         new Wac_url;
+        new Wac_auto;
     }
 }

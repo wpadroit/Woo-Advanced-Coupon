@@ -12,6 +12,7 @@ use WpAdroit\Wac_Coupon\Frontend\Helpers\Validator;
 class Wac_front
 {
     public $discount_amount;
+
     public function __construct()
     {
         // check coupon is valid 
@@ -69,6 +70,10 @@ class Wac_front
             $couponData = new WC_Coupon($coupon);
             $post_id = $couponData->get_id();
             $post_meta = get_post_meta($post_id, "wac_coupon_panel", true);
+            if (empty($post_meta["list_id"])) {
+                return;
+                exit;
+            }
             $wac_id = $post_meta["list_id"];
             $wac_main = get_post_meta($wac_id, "wac_coupon_main", true);
             $wac_discounts = get_post_meta($wac_id, "wac_coupon_discounts", true);
@@ -160,6 +165,9 @@ class Wac_front
             $couponData = new WC_Coupon($coupon);
             $post_id = $couponData->get_id();
             $post_meta = get_post_meta($post_id, "wac_coupon_panel", true);
+            if (empty($post_meta["list_id"])) {
+                return $price;
+            }
             $wac_id = $post_meta["list_id"];
             $wac_main = get_post_meta($wac_id, "wac_coupon_main", true);
             $wac_discounts = get_post_meta($wac_id, "wac_coupon_discounts", true);

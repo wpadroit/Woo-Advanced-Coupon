@@ -28,12 +28,35 @@ class Wac_Setting
 
     public function get_wac_settings()
     {
+        $args = [
+            "post_type" => "woocoupon",
+            'post_status' => 'publish'
+        ];
+        $wac_data = get_posts($args);
+        $wac_coupons = ["0" => "Select Discount"];
+        foreach ($wac_data as $data) {
+            $wac_coupons[$data->ID] = $data->post_title;
+        }
         $settings = array(
             'section_title' => array(
                 'name'     => __('Woo Coupon Settings', 'wac'),
                 'type'     => 'title',
                 'desc'     => 'These settings can effect both coupons',
                 'id'       => 'wac_woo_settings_section_title'
+            ),
+            'wac_first_time_purchase_coupon' => array(
+                'name' => __('Coupon for first Purchase', 'wac'),
+                'type' => 'select',
+                'options' => $wac_coupons,
+                'desc' => __('Select a discount from here which you want to enable for new customers', 'wac'),
+                'id'   => 'wac_first_time_purchase_coupon'
+            ),
+            'wac_first_time_purchase_coupon_label' => array(
+                'name' => __('First Purchase coupon label', 'wac'),
+                'type' => 'text',
+                'default' => 'Discounted Amount',
+                'desc' => __('Display Label on cart', 'wac'),
+                'id'   => 'wac_first_time_purchase_coupon_label'
             ),
             'wac_woo_setting_multi' => array(
                 'name' => __('Multi Coupon', 'wac'),
