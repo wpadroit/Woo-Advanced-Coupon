@@ -33,7 +33,7 @@ class Apply
                 $discount_label = $wac_discounts["label"];
             }
         } else if ($wac_coupon_type == "product") {
-	        $first_coupon          = get_option( "wac_first_time_purchase_coupon" );
+            $first_coupon          = get_option("wac_first_time_purchase_coupon");
             if ($first_coupon != 0) {
                 WC()->session->set("wac_product_coupon", [
                     "first_coupon" => "yes"

@@ -246,10 +246,8 @@ class Wac_Coupon
 		}
 
 		$type = $_POST["wac_coupon_type"];
-		$discount_display = $_POST["wac_discount_display"];
 		$main = [
 			"type" => $type,
-			"discount_display" => $discount_display
 		];
 
 		$discount_type = $_POST["wac_discount_type"];

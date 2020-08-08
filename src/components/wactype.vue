@@ -16,31 +16,6 @@
           </select>
         </div>
       </div>
-      <div class="wac-show-hide-checkbox">
-        <div class="wac-form">
-          <label>
-            <strong>Discount Show ? Hide</strong>
-            <div class="wac-checkbox">
-              <label>
-                <input
-                  name="wac_discount_display"
-                  type="radio"
-                  value="show"
-                  v-model="discount_display"
-                /> Show
-              </label>
-              <label>
-                <input
-                  name="wac_discount_display"
-                  type="radio"
-                  value="hide"
-                  v-model="discount_display"
-                /> Hide
-              </label>
-            </div>
-          </label>
-        </div>
-      </div>
     </div>
   </div>
 </template>
@@ -51,7 +26,6 @@ export default {
   data() {
     return {
       value: "product",
-      discount_display: "show",
       discounts: [
         { label: "Product Adjustment", value: "product" },
         { label: "Cart Adjustment", value: "cart" },
@@ -77,7 +51,6 @@ export default {
         .then((response) => {
           if (response.data != [] && response.data != "") {
             root.value = response.data.type;
-            root.discount_display = response.data.discount_display;
             root.$root.wac_form.type = response.data.type;
           }
         })
