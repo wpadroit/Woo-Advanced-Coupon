@@ -58,6 +58,16 @@ class Wac_Setting
                 'desc' => __('Display Label on cart', 'wac'),
                 'id'   => 'wac_first_time_purchase_coupon_label'
             ),
+            'wac_woo_setting_show_product_discount' => array(
+                'name' => __('Show Product Discount', 'wac'),
+                'type' => 'select',
+                'options' => [
+                    "yes" => "Yes",
+                    "no" => "No",
+                ],
+                'desc' => __('Set "no" , if you want to hide product discount', 'wac'),
+                'id'   => 'wac_woo_setting_show_product_discount'
+            ),
             'wac_woo_setting_multi' => array(
                 'name' => __('Multi Coupon', 'wac'),
                 'type' => 'select',

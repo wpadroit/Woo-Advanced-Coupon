@@ -54,9 +54,9 @@ class Wac_auto
 				if ($res_data) {
 					$cart = WC()->cart;
 					if ($wac_woo_setting_multi == "yes") {
-						$cart->add_fee($res_data["label"], -$res_data["amount"]);
-					} else {
 						$cart->add_fee($res_data["label"] . '-' . $i, -$res_data["amount"]);
+					} else {
+						$cart->add_fee($res_data["label"], -$res_data["amount"]);
 						break;
 					}
 				}

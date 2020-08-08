@@ -25,6 +25,21 @@ class Wac_front
         add_filter("woocommerce_product_get_price", [$this, "wac_update_product_price"], 10, 2);
         // woocommerce change product coupon html
         add_filter('woocommerce_cart_totals_coupon_html', [$this, "wac_change_product_coupon_html"], 30, 3);
+        // woocommerce discount show or hide
+        add_filter('woocommerce_get_price_html', [$this, "wac_product_price_html"], 100, 2);
+    }
+
+    /**
+     * woocommerce discount show or hide
+     **/
+    public function wac_product_price_html($price, $product)
+    {
+        $wac_woo_setting_show_product_discount = get_option("wac_woo_setting_show_product_discount");
+        if ($wac_woo_setting_show_product_discount == "no") {
+            return wc_price($product->get_price());
+        } else {
+            return $price;
+        }
     }
 
     /**
@@ -33,6 +48,10 @@ class Wac_front
      **/
     public function wac_filter_cart_product_pricing($formatted_price, $product)
     {
+        $wac_woo_setting_show_product_discount = get_option("wac_woo_setting_show_product_discount");
+        if ($wac_woo_setting_show_product_discount == "no") {
+            return $formatted_price;
+        }
         $_product = wc_get_product($product->get_id());
         if ($formatted_price != wc_price($_product->get_regular_price())) {
             return $formatted_price . '<br /><del>' . wc_price($_product->get_regular_price()) . '</del>';
