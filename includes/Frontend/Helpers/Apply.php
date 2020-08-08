@@ -33,7 +33,19 @@ class Apply
                 $discount_label = $wac_discounts["label"];
             }
         } else if ($wac_coupon_type == "product") {
-            WC()->session->set("wac_product_coupon", "yes");
+	        $first_coupon          = get_option( "wac_first_time_purchase_coupon" );
+            if ($first_coupon != 0) {
+                WC()->session->set("wac_product_coupon", [
+                    "first_coupon" => "yes"
+                ]);
+            } else {
+                $items = [];
+                array_push($items, $coupon);
+                WC()->session->set("wac_product_coupon", [
+                    "first_coupon" => "no",
+                    "items" => $items
+                ]);
+            }
             return false;
         } else if ($wac_coupon_type == "bulk") {
             foreach ($wac_discounts as $wac_discount) {
