@@ -206,7 +206,7 @@ class Wac_front
                                     $discount = $wac_discounts["value"];
                                     break;
                             }
-                            $amount = (int)($price - $discount);
+                            $amount = (float)($price - $discount);
                             $product->set_sale_price($amount);
                             return $amount;
                         }
@@ -222,7 +222,7 @@ class Wac_front
                                 $discount = $wac_discounts["value"];
                                 break;
                         }
-                        $amount = (int)($price - $discount);
+                        $amount = (float)($price - $discount);
                         $product->set_sale_price($amount);
                         return $amount;
                     }
