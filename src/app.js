@@ -1,6 +1,9 @@
 import Vue from "vue";
 window.axios = require("axios");
 window.Qs = require('qs');
+import Toasted from 'vue-toasted';
+
+Vue.use(Toasted)
 
 Vue.component("wactype", require("./components/wactype.vue").default);
 Vue.component("wacfilter", require("./components/wacfilter.vue").default);

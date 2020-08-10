@@ -1,5 +1,6 @@
 <template>
   <div>
+    <input type="hidden" name="rulesLength" :value="conditions.length" />
     <div class="wac-form">
       <label>
         <strong>Conditions Relationship</strong>
@@ -18,7 +19,6 @@
       v-for="(condition, index) in conditions"
       :key="'condition'+index"
     >
-      <input type="hidden" name="rulesLength" :value="conditions.length" />
       <div class="wac-bulk-list">
         <div class="wac-form">
           <label :for="'wac_rule_type_'+index">
@@ -88,7 +88,7 @@
           </select>
         </div>
       </div>
-      <div class="wac-filter-close" v-if="conditions.length > 1">
+      <div class="wac-filter-close">
         <span @click="removeRule(index)" class="dashicons dashicons-no-alt"></span>
       </div>
     </div>
@@ -128,8 +128,8 @@ export default {
           value: "greater_than_or_equal",
         },
         {
-          label: "greater_than",
-          value: "greater_than_or_equal",
+          label: "greater_than ( > )",
+          value: "greater_than",
         },
       ],
       calculates: [
@@ -143,12 +143,12 @@ export default {
         },
       ],
       conditions: [
-        {
-          type: "cart_subtotal",
-          operator: "less_than",
-          item_count: null,
-          calculate: "from_cart",
-        },
+        // {
+        //   type: "cart_subtotal",
+        //   operator: "less_than",
+        //   item_count: null,
+        //   calculate: "from_cart",
+        // },
       ],
     };
   },
@@ -178,7 +178,8 @@ export default {
         .then((response) => {
           if (response.data != [] && response.data != "") {
             root.relation = response.data.relation;
-            root.conditions = response.data.rules;
+            root.conditions =
+              response.data.rules == null ? [] : response.data.rules;
           }
         })
         .catch((error) => {

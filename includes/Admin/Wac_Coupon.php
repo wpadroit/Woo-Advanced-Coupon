@@ -182,7 +182,7 @@ class Wac_Coupon
 		// Wac Rules
 		add_meta_box(
 			'wac_rules_box',
-			'Coupon Rules',
+			'Coupon Rules (optional)',
 			[$this, 'wac_rules_screen'],
 			'woocoupon',
 			'normal',
@@ -246,10 +246,8 @@ class Wac_Coupon
 		}
 
 		$type = $_POST["wac_coupon_type"];
-		$discount_display = $_POST["wac_discount_display"];
 		$main = [
 			"type" => $type,
-			"discount_display" => $discount_display
 		];
 
 		$discount_type = $_POST["wac_discount_type"];
@@ -282,14 +280,17 @@ class Wac_Coupon
 
 		$rulesLength = $_POST["rulesLength"];
 		$wac_rules = [];
-
-		for ($i = 0; $i < $rulesLength; $i++) {
-			array_push($wac_rules, [
-				"type" => $_POST["wac_rule_type_" . $i],
-				"operator" => $_POST["wac_rule_operator_" . $i],
-				"item_count" => $_POST["wac_rule_item_" . $i],
-				"calculate" => $_POST["wac_rule_calculate_" . $i]
-			]);
+		if ($rulesLength == 0) {
+			$wac_rules = null;
+		} else {
+			for ($i = 0; $i < $rulesLength; $i++) {
+				array_push($wac_rules, [
+					"type" => $_POST["wac_rule_type_" . $i],
+					"operator" => $_POST["wac_rule_operator_" . $i],
+					"item_count" => $_POST["wac_rule_item_" . $i],
+					"calculate" => $_POST["wac_rule_calculate_" . $i]
+				]);
+			}
 		}
 
 		$rules = [

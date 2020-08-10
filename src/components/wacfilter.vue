@@ -114,7 +114,10 @@ export default {
       axios
         .post(wac_helper_obj.ajax_url, Qs.stringify(formData))
         .then((response) => {
-          console.log(response.data);
+          this.$toasted.show(response.data.message, {
+            position: "top-center",
+            duration: 3000,
+          });
         })
         .catch((error) => {
           console.log(error);

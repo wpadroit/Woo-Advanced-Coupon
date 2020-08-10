@@ -22,7 +22,8 @@ class Wac_Panels
                 return;
             }
             $wac_data = [
-                "list_id" => $_POST["wac_feature"]
+                "list_id" => $_POST["wac_feature"],
+                "overwrite_discount" => $_POST["overwrite_discount"]
             ];
             update_post_meta($post_id, "wac_coupon_panel", $wac_data);
         }
@@ -30,7 +31,7 @@ class Wac_Panels
 
     public function wac_data_tabs($tabs)
     {
-        $tabs['custom_text'] = array(
+        $tabs['wac_features'] = array(
             'label'     => __('Woo Coupon', 'wac'),
             'class'  => 'wac_coupon_panel',
             'target'     => 'wac_tabs_screen'

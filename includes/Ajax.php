@@ -105,8 +105,14 @@ class Ajax
 			wp_die(__('Sorry !! You cannot permit to access.', 'wac'));
 		}
 		$post_id = $_POST["post_id"];
-		$wacfilters = $_POST["wacfilters"];
-		$result = update_post_meta($post_id, "wac_filters", $wacfilters);
+		$wacfilters = [];
+		foreach ($_POST["wacfilters"] as $wac_filter) {
+			if (!isset($wac_filter["items"])) {
+				$wac_filter["items"] = [];
+			}
+			array_push($wacfilters, $wac_filter);
+		}
+		update_post_meta($post_id, "wac_filters", $wacfilters);
 		wp_send_json(["message" => "Updated SuccessFully", "status" => "success"]);
 	}
 }
