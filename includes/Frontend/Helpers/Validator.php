@@ -11,7 +11,7 @@ use WC_Discounts;
 class Validator
 {
 
-    static $coupon, $post_id, $wac_id;
+    static $coupon, $post_id, $wac_id, $result;
 
     static public function check($coupon = null, $post_id = null, $wac_id = null)
     {
@@ -20,14 +20,30 @@ class Validator
         self::$post_id = $post_id;
         self::$wac_id = $wac_id;
 
-        $result = self::wac_fiter_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
-        if ($result) {
-            $result = self::wac_multi_validate(self::$coupon, self::$post_id) ? true : false;
+        if (!did_action('wp_loaded')) {
+            add_action("wp_loaded", function () {
+                $result = self::wac_fiter_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
+                // if ($result) {
+                //     $result = self::wac_multi_validate(self::$coupon, self::$post_id) ? true : false;
+                // }
+                // if ($result) {
+                //     $result = self::wac_rules_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
+                // }
+                self::$result = $result;
+                return $result;
+            });
+        } else {
+            $result = self::wac_fiter_validate(self::$coupon, self::$post_id, self::$wac_id) ? self::wac_fiter_validate(self::$coupon, self::$post_id, self::$wac_id) : false;
+            // if ($result) {
+            //     $result = self::wac_multi_validate(self::$coupon, self::$post_id) ? true : false;
+            // }
+            // if ($result) {
+            //     $result = self::wac_rules_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
+            // }
+            self::$result = $result;
+            return $result;
         }
-        if ($result) {
-            $result = self::wac_rules_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
-        }
-        return $result;
+        return self::$result;
     }
 
     static public function wac_multi_validate($coupon, $post_id)
@@ -55,7 +71,6 @@ class Validator
         } else {
             $filters = get_post_meta($wac_id, "wac_filters", true);
         }
-
 
         foreach ($filters as $filter) {
             if ($filter["type"] == "all_products") {

@@ -67,6 +67,9 @@ class Wac_front
             $min_regular_price = $product->get_variation_price('min');
             $max_regular_price = $product->get_variation_price('max');
             $discount = $product->get_sale_price();
+            if ($discount == "") {
+                return $price;
+            }
             $min_sale_price = $min_regular_price + $discount;
             $max_sale_price = $max_regular_price + $discount;
             $price_html = "<del>" . wc_price($min_regular_price) . " – " . wc_price($max_regular_price) . "</del><br/>" . wc_price($min_sale_price) . " – " . wc_price($max_sale_price);

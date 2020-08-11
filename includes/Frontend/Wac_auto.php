@@ -161,7 +161,7 @@ class Wac_auto
 								if ($wacproducts["value"] == $product->get_id()) {
 									switch ($wac_discounts["type"]) {
 										case 'percentage':
-											$discount = ($wac_discounts["value"] / 100) * $price;
+											$discount = ($wac_discounts["value"] / 100) * $product->get_regular_price();
 											break;
 										case 'fixed':
 											$discount = $wac_discounts["value"];
@@ -176,7 +176,7 @@ class Wac_auto
 							$discount = 0;
 							switch ($wac_discounts["type"]) {
 								case 'percentage':
-									$discount = ($wac_discounts["value"] / 100) * $price;
+									$discount = ($wac_discounts["value"] / 100) * $product->get_regular_price();
 									break;
 								case 'fixed':
 									$discount = $wac_discounts["value"];
@@ -202,7 +202,10 @@ class Wac_auto
 	{
 		$data = WC()->session->get("wac_product_coupon");
 		foreach ($data["items"] as $woocoupon) {
-
+			$validate = Validator::check(null, null, $woocoupon);
+			if (!$validate) {
+				return $price;
+			}
 			$wac_main        = get_post_meta($woocoupon, "wac_coupon_main", true);
 			$wac_coupon_type = $wac_main["type"];
 			$wac_discounts = get_post_meta($woocoupon, "wac_coupon_discounts", true);
@@ -215,7 +218,7 @@ class Wac_auto
 							if ($wacproducts["value"] == $product->get_id()) {
 								switch ($wac_discounts["type"]) {
 									case 'percentage':
-										$discount = ($wac_discounts["value"] / 100) * $price;
+										$discount = ($wac_discounts["value"] / 100) * $product->get_regular_price();
 										break;
 									case 'fixed':
 										$discount = $wac_discounts["value"];
@@ -226,11 +229,12 @@ class Wac_auto
 								return $amount;
 							}
 						}
+						return $price;
 					} elseif ($wac_filter["type"] == "all_products") {
 						$discount = 0;
 						switch ($wac_discounts["type"]) {
 							case 'percentage':
-								$discount = ($wac_discounts["value"] / 100) * $price;
+								$discount = ($wac_discounts["value"] / 100) * $product->get_regular_price();
 								break;
 							case 'fixed':
 								$discount = $wac_discounts["value"];
@@ -245,5 +249,6 @@ class Wac_auto
 				return $price;
 			}
 		}
+		return $price;
 	}
 }
