@@ -44,6 +44,7 @@ if (!defined('ABSPATH')) {
 }
 
 require_once __DIR__ . '/vendor/autoload.php';
+require_once(ABSPATH . 'wp-admin/includes/plugin.php');
 
 /**
  * Wac_main class
@@ -74,23 +75,10 @@ final class Wac_main
      */
     private function __construct()
     {
-        $this->checkPlugin();
         $this->define_constants();
-
         register_activation_hook(__FILE__, [$this, 'activate']);
         register_deactivation_hook(__FILE__, [$this, 'deactivate']);
-
         add_action('plugins_loaded', [$this, 'init_plugin']);
-    }
-
-    /**
-     * Check if WooCommerce Exixts
-     */
-    public function checkPlugin()
-    {
-        if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
-            wp_die("You Need to install wooCommerce for use These Plugin !!", null, ['back_link' => 1]);
-        }
     }
 
     /**
@@ -164,6 +152,28 @@ final class Wac_main
     {
         $this->includes();
         $this->init_hooks();
+        $this->checkPlugin();
+    }
+
+    /**
+     * Check if WooCommerce Exixts
+     */
+    public function checkPlugin()
+    {
+        if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
+            deactivate_plugins(plugin_basename(__FILE__));
+            add_action('admin_notices', [$this, 'deactivation_notice']);
+        }
+    }
+
+    /**
+     * Display Deactivation Notices
+     **/
+    public function deactivation_notice()
+    {
+        echo '<div class="notice notice-error is-dismissible">
+             <p><small><code>Woo Advance Coupon</code></small> plugin is <b>Deactivated !!</b> It\'s require <small><code>WooCommerce</code></small> plugin</p>
+         </div>';
     }
 
     /**
