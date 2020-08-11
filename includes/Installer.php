@@ -15,9 +15,20 @@ class Installer
      */
     public function run()
     {
+        $this->checkPlugin();
         $this->add_version();
         $this->create_tables();
         $this->create_options();
+    }
+
+    /**
+     * Check if WooCommerce Exixts
+     */
+    public function checkPlugin()
+    {
+        if (!in_array('woocommerce/woocommerce.php', apply_filters('active_plugins', get_option('active_plugins')))) {
+            wp_die(__("You Need to install wooCommerce for use These Plugin !!", "wac"), null, ['back_link' => 1]);
+        }
     }
 
     /**
