@@ -18,7 +18,7 @@
             <strong>Value</strong>
           </label>
           <input
-            type="number"
+            type="text"
             id="wac_discount_value"
             name="wac_discount_value"
             placeholder="0.00"
@@ -53,7 +53,7 @@
               <strong>Min</strong>
             </label>
             <input
-              type="number"
+              type="text"
               :id="'wac_discount_min_'+index"
               v-model="wacDiscount.min"
               :name="'wac_discount_min_'+index"
@@ -67,7 +67,7 @@
               <strong>Max</strong>
             </label>
             <input
-              type="number"
+              type="text"
               :id="'wac_discount_max_'+index"
               v-model="wacDiscount.max"
               :name="'wac_discount_max_'+index"
@@ -96,7 +96,7 @@
               <strong>Value</strong>
             </label>
             <input
-              type="number"
+              type="text"
               :id="'wac_discount_value_'+index"
               v-model="wacDiscount.value"
               :name="'wac_discount_value_'+index"

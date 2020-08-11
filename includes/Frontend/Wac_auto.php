@@ -21,6 +21,7 @@ class Wac_auto
 		// add_action("woocommerce_before_cart", [$this, "wac_do_before_cart"]);
 		add_action('woocommerce_cart_calculate_fees', [$this, "wac_auto_coupon_on_cart"]);
 		add_filter("woocommerce_product_get_price", [$this, "wac_change_price"], 10, 2);
+		add_filter("woocommerce_product_variation_get_price", [$this, "wac_change_price"], 10, 2);
 	}
 
 	/**
@@ -166,7 +167,7 @@ class Wac_auto
 											$discount = $wac_discounts["value"];
 											break;
 									}
-									$amount = (float) ($price - $discount);
+									$amount = ((float)$product->get_regular_price() - $discount);
 									$product->set_sale_price($amount);
 									return $amount;
 								}
@@ -181,7 +182,7 @@ class Wac_auto
 									$discount = $wac_discounts["value"];
 									break;
 							}
-							$amount = (float) ($price - $discount);
+							$amount = ((float)$product->get_regular_price() - $discount);
 							$product->set_sale_price($amount);
 							return $amount;
 						}
@@ -220,7 +221,7 @@ class Wac_auto
 										$discount = $wac_discounts["value"];
 										break;
 								}
-								$amount = (float) ($price - $discount);
+								$amount = ((float)$product->get_regular_price() - $discount);
 								$product->set_sale_price($amount);
 								return $amount;
 							}
@@ -235,7 +236,7 @@ class Wac_auto
 								$discount = $wac_discounts["value"];
 								break;
 						}
-						$amount = (float) ($price - $discount);
+						$amount = ((float)$product->get_regular_price() - $discount);
 						$product->set_sale_price($amount);
 						return $amount;
 					}

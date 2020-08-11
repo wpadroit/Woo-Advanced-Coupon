@@ -39,7 +39,7 @@ Domain Path: /languages
  */
 
 // don't call the file directly
-if ( ! defined( 'ABSPATH' ) ) {
+if (!defined('ABSPATH')) {
     exit;
 }
 
@@ -50,7 +50,8 @@ require_once __DIR__ . '/vendor/autoload.php';
  *
  * @class Wac_main The class that holds the entire Wac_main plugin
  */
-final class Wac_main {
+final class Wac_main
+{
     /**
      * Plugin version
      *
@@ -71,14 +72,15 @@ final class Wac_main {
      * Sets up all the appropriate hooks and actions
      * within our plugin.
      */
-    private function __construct() {
+    private function __construct()
+    {
         $this->checkPlugin();
         $this->define_constants();
 
-        register_activation_hook( __FILE__, [ $this, 'activate' ] );
-        register_deactivation_hook( __FILE__, [ $this, 'deactivate' ] );
+        register_activation_hook(__FILE__, [$this, 'activate']);
+        register_deactivation_hook(__FILE__, [$this, 'deactivate']);
 
-        add_action( 'plugins_loaded', [ $this, 'init_plugin' ] );
+        add_action('plugins_loaded', [$this, 'init_plugin']);
     }
 
     /**
@@ -99,10 +101,11 @@ final class Wac_main {
      *
      * @return Wac_main|bool
      */
-    public static function init() {
+    public static function init()
+    {
         static $instance = false;
 
-        if ( ! $instance ) {
+        if (!$instance) {
             $instance = new Wac_main();
         }
 
@@ -116,9 +119,10 @@ final class Wac_main {
      *
      * @return mixed
      */
-    public function __get( $prop ) {
-        if ( array_key_exists( $prop, $this->container ) ) {
-            return $this->container[ $prop ];
+    public function __get($prop)
+    {
+        if (array_key_exists($prop, $this->container)) {
+            return $this->container[$prop];
         }
 
         return $this->{$prop};
@@ -131,8 +135,9 @@ final class Wac_main {
      *
      * @return mixed
      */
-    public function __isset( $prop ) {
-        return isset( $this->{$prop} ) || isset( $this->container[ $prop ] );
+    public function __isset($prop)
+    {
+        return isset($this->{$prop}) || isset($this->container[$prop]);
     }
 
     /**
@@ -140,13 +145,14 @@ final class Wac_main {
      *
      * @return void
      */
-    public function define_constants() {
-        define( 'WAC_ASSETS_VERSION', self::version );
-        define( 'WAC_ASSETS_FILE', __FILE__ );
-        define( 'WAC_ASSETS_PATH', dirname( WAC_ASSETS_FILE ) );
-        define( 'WAC_ASSETS_INCLUDES', WAC_ASSETS_PATH . '/includes' );
-        define( 'WAC_ASSETS_URL', plugins_url( '', WAC_ASSETS_FILE ) );
-        define( 'WAC_ASSETS_ASSETS', WAC_ASSETS_URL . '/assets' );
+    public function define_constants()
+    {
+        define('WAC_ASSETS_VERSION', self::version);
+        define('WAC_ASSETS_FILE', __FILE__);
+        define('WAC_ASSETS_PATH', dirname(WAC_ASSETS_FILE));
+        define('WAC_ASSETS_INCLUDES', WAC_ASSETS_PATH . '/includes');
+        define('WAC_ASSETS_URL', plugins_url('', WAC_ASSETS_FILE));
+        define('WAC_ASSETS_ASSETS', WAC_ASSETS_URL . '/assets');
     }
 
     /**
@@ -154,7 +160,8 @@ final class Wac_main {
      *
      * @return void
      */
-    public function init_plugin() {
+    public function init_plugin()
+    {
         $this->includes();
         $this->init_hooks();
     }
@@ -164,7 +171,8 @@ final class Wac_main {
      *
      * Nothing being called here yet.
      */
-    public function activate() {
+    public function activate()
+    {
         $installer = new WpAdroit\Wac_Coupon\Installer();
         $installer->run();
     }
@@ -174,8 +182,8 @@ final class Wac_main {
      *
      * Nothing being called here yet.
      */
-    public function deactivate() {
-
+    public function deactivate()
+    {
     }
 
     /**
@@ -183,16 +191,17 @@ final class Wac_main {
      *
      * @return void
      */
-    public function includes() {
-        if ( $this->is_request( 'admin' ) ) {
+    public function includes()
+    {
+        if ($this->is_request('admin')) {
             $this->container['admin'] = new WpAdroit\Wac_Coupon\Admin();
         }
 
-        if ( $this->is_request( 'frontend' ) ) {
+        if ($this->is_request('frontend')) {
             $this->container['frontend'] = new WpAdroit\Wac_Coupon\Frontend();
         }
 
-        if ( $this->is_request( 'ajax' ) ) {
+        if ($this->is_request('ajax')) {
             $this->container['ajax'] = new WpAdroit\Wac_Coupon\Ajax();
         }
     }
@@ -202,11 +211,12 @@ final class Wac_main {
      *
      * @return void
      */
-    public function init_hooks() {
-        add_action( 'init', [ $this, 'init_classes' ] );
+    public function init_hooks()
+    {
+        add_action('init', [$this, 'init_classes']);
 
         // Localize our plugin
-        add_action( 'init', [ $this, 'localization_setup' ] );
+        add_action('init', [$this, 'localization_setup']);
     }
 
     /**
@@ -214,8 +224,9 @@ final class Wac_main {
      *
      * @return void
      */
-    public function init_classes() {
-        if ( $this->is_request( 'ajax' ) ) {
+    public function init_classes()
+    {
+        if ($this->is_request('ajax')) {
             // $this->container['ajax'] =  new WpAdroit\Wac_Coupon\Ajax();
         }
         $this->container['assets'] = new WpAdroit\Wac_Coupon\Assets();
@@ -226,8 +237,9 @@ final class Wac_main {
      *
      * @uses load_plugin_textdomain()
      */
-    public function localization_setup() {
-        load_plugin_textdomain( 'wac', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+    public function localization_setup()
+    {
+        load_plugin_textdomain('wac', false, dirname(plugin_basename(__FILE__)) . '/languages/');
     }
 
     /**
@@ -237,25 +249,25 @@ final class Wac_main {
      *
      * @return bool
      */
-    private function is_request( $type ) {
-        switch ( $type ) {
-            case 'admin' :
+    private function is_request($type)
+    {
+        switch ($type) {
+            case 'admin':
                 return is_admin();
 
-            case 'ajax' :
-                return defined( 'DOING_AJAX' );
+            case 'ajax':
+                return defined('DOING_AJAX');
 
-            case 'rest' :
-                return defined( 'REST_REQUEST' );
+            case 'rest':
+                return defined('REST_REQUEST');
 
-            case 'cron' :
-                return defined( 'DOING_CRON' );
+            case 'cron':
+                return defined('DOING_CRON');
 
-            case 'frontend' :
-                return ( ! is_admin() || defined( 'DOING_AJAX' ) ) && ! defined( 'DOING_CRON' );
+            case 'frontend':
+                return (!is_admin() || defined('DOING_AJAX')) && !defined('DOING_CRON');
         }
     }
-
 } // Wac_main
 
 /**
@@ -263,7 +275,8 @@ final class Wac_main {
  *
  * @return \Wac_main|bool
  */
-function wac_main() {
+function wac_main()
+{
     return Wac_main::init();
 }
 

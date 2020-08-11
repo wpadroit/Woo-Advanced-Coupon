@@ -27,6 +27,34 @@ class Wac_front
         add_filter('woocommerce_cart_totals_coupon_html', [$this, "wac_change_product_coupon_html"], 30, 3);
         // woocommerce discount show or hide
         add_filter('woocommerce_get_price_html', [$this, "wac_product_price_html"], 100, 2);
+        // woocommerce grouped products discount
+        add_filter('woocommerce_grouped_price_html', [$this, "wac_group_product_discount_html"], 10, 3);
+    }
+
+    /**
+     * WooCommerce Grouped Product Price HTML
+     **/
+    public function wac_group_product_discount_html($price, $product, $child_prices)
+    {
+        $wac_woo_setting_show_product_discount = get_option("wac_woo_setting_show_product_discount");
+        $child_products = $product->get_children();
+        $regular_prices = [];
+        foreach ($child_products as $child_product) {
+            $child_product = wc_get_product($child_product);
+            array_push($regular_prices, $child_product->get_regular_price());
+        }
+        $min_regular_price = min($regular_prices);
+        $max_regular_price = max($regular_prices);
+        $min_sale_price = min($child_prices);
+        $max_sale_price = max($child_prices);
+
+        $price_html = "<del>" . wc_price($min_regular_price) . " – " . wc_price($max_regular_price) . "</del><br/>" . wc_price($min_sale_price) . " – " . wc_price($max_sale_price);
+        if ($wac_woo_setting_show_product_discount == "no") {
+            return wc_price($min_sale_price) . " – " . wc_price($max_sale_price);
+        } else {
+            return $price_html;
+        }
+        return $price;
     }
 
     /**
@@ -35,13 +63,27 @@ class Wac_front
     public function wac_product_price_html($price, $product)
     {
         $wac_woo_setting_show_product_discount = get_option("wac_woo_setting_show_product_discount");
-        if ($wac_woo_setting_show_product_discount == "no") {
-            return wc_price($product->get_price());
-        } else {
-            return $price;
+        if ($product->is_type('variable')) {
+            $min_regular_price = $product->get_variation_price('min');
+            $max_regular_price = $product->get_variation_price('max');
+            $discount = $product->get_sale_price();
+            $min_sale_price = $min_regular_price + $discount;
+            $max_sale_price = $max_regular_price + $discount;
+            $price_html = "<del>" . wc_price($min_regular_price) . " – " . wc_price($max_regular_price) . "</del><br/>" . wc_price($min_sale_price) . " – " . wc_price($max_sale_price);
+            if ($wac_woo_setting_show_product_discount == "no") {
+                return wc_price($min_sale_price) . " – " . wc_price($max_sale_price);
+            } else {
+                return $price_html;
+            }
+        } else if ($product->is_type('simple')) {
+            if ($wac_woo_setting_show_product_discount == "no") {
+                return wc_price($product->get_price());
+            } else {
+                return $price;
+            }
         }
+        return $price;
     }
-
     /**
      * WooCommerce display cart price with <del>#...</del>
      *
@@ -206,7 +248,7 @@ class Wac_front
                                     $discount = $wac_discounts["value"];
                                     break;
                             }
-                            $amount = (float)($price - $discount);
+                            $amount = ((float)$product->get_regular_price() - $discount);
                             $product->set_sale_price($amount);
                             return $amount;
                         }
@@ -222,7 +264,7 @@ class Wac_front
                                 $discount = $wac_discounts["value"];
                                 break;
                         }
-                        $amount = (float)($price - $discount);
+                        $amount = ((float)$product->get_regular_price() - $discount);
                         $product->set_sale_price($amount);
                         return $amount;
                     }

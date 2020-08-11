@@ -20,16 +20,14 @@ class Validator
         self::$post_id = $post_id;
         self::$wac_id = $wac_id;
 
-        add_action('wp', function () {
-            $result = self::wac_fiter_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
-            if ($result) {
-                $result = self::wac_multi_validate(self::$coupon, self::$post_id) ? true : false;
-            }
-            if ($result) {
-                $result = self::wac_rules_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
-            }
-            return $result;
-        });
+        $result = self::wac_fiter_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
+        if ($result) {
+            $result = self::wac_multi_validate(self::$coupon, self::$post_id) ? true : false;
+        }
+        if ($result) {
+            $result = self::wac_rules_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
+        }
+        return $result;
     }
 
     static public function wac_multi_validate($coupon, $post_id)
