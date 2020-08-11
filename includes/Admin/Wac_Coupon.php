@@ -251,7 +251,7 @@ class Wac_Coupon
 		];
 
 		$discount_type = $_POST["wac_discount_type"];
-		$discount_value = $_POST["wac_discount_value"];
+		$discount_value = $_POST["wac_discount_value"] ? $_POST["wac_discount_value"] : 0;
 
 		if (isset($_POST["wac_discount_label"]) && $type == "cart") {
 			$discount_label = $_POST["wac_discount_label"];
@@ -267,7 +267,7 @@ class Wac_Coupon
 					"min" => $_POST["wac_discount_min_" . $i],
 					"max" => $_POST["wac_discount_max_" . $i],
 					"type" => $_POST["wac_discount_type_" . $i],
-					"value" => $_POST["wac_discount_value_" . $i]
+					"value" => $_POST["wac_discount_value_" . $i] ? $_POST["wac_discount_value_" . $i] : 0
 				]);
 			}
 		} else {
@@ -297,6 +297,17 @@ class Wac_Coupon
 			"relation" => $_POST["wac_rule_relation"],
 			"rules" => $wac_rules
 		];
+
+		$filters = get_post_meta($post_id, "wac_filters", true);
+
+		if (!$filters) {
+			$wac_filters = [[
+				"type" => "all_products",
+				"lists" => "inList",
+				"items" => []
+			]];
+			update_post_meta($post_id, "wac_filters", $wac_filters);
+		}
 
 		update_post_meta($post_id, "wac_coupon_main", $main);
 		update_post_meta($post_id, "wac_coupon_discounts", $wac_discount);
