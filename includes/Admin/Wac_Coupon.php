@@ -294,8 +294,12 @@ class Wac_Coupon
 			}
 		}
 
+		if ($type == "product") {
+			$wac_rules = null;
+		}
+
 		$rules = [
-			"relation" => $_POST["wac_rule_relation"],
+			"relation" => $_POST["wac_rule_relation"] ? $_POST["wac_rule_relation"] : "match_all",
 			"rules" => $wac_rules
 		];
 

@@ -1,58 +1,61 @@
 <template>
   <div>
-    <div
-      class="wac-flex wac-filter"
-      v-for="(wacfilter, index) in wacfilters"
-      :key="'wacfilter-' + index"
-    >
-      <div class="wac-col-3">
-        <div class="wac-form">
-          <label for="wac_filter_type">
-            <strong>Type</strong>
-          </label>
-          <select id="wac_filter_type" name="wac_filter_type[]" v-model="wacfilter.type">
-            <option
-              v-for="(filterType, index) in filterTypes"
-              :key="'filterType-' + index"
-              :value="filterType.value"
-            >{{ filterType.label }}</option>
-          </select>
+    <div v-if="loading" class="spinner is-active wac_spinner"></div>
+    <div v-else>
+      <div
+        class="wac-flex wac-filter"
+        v-for="(wacfilter, index) in wacfilters"
+        :key="'wacfilter-' + index"
+      >
+        <div class="wac-col-3">
+          <div class="wac-form">
+            <label for="wac_filter_type">
+              <strong>Type</strong>
+            </label>
+            <select id="wac_filter_type" name="wac_filter_type[]" v-model="wacfilter.type">
+              <option
+                v-for="(filterType, index) in filterTypes"
+                :key="'filterType-' + index"
+                :value="filterType.value"
+              >{{ filterType.label }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="wac-filter-list" v-if="wacfilter.type === 'products'">
+          <div class="wac-form">
+            <label for="wac_filter_lists">
+              <strong>Lists Type</strong>
+            </label>
+            <select id="wac_filter_lists" name="wac_filter_lists[]" v-model="wacfilter.lists">
+              <option
+                v-for="(ListsType, index) in ListsTypes"
+                :key="'ListsType-' + index"
+                :value="ListsType.value"
+              >{{ ListsType.label }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="wac-col-3" v-if="wacfilter.type === 'products'">
+          <div class="wac-form">
+            <label for="wac_filter_products">
+              <strong>Select Products</strong>
+            </label>
+            <customSelect
+              v-on:selectOptions="selectOptions"
+              :multiData="multiData"
+              :defaultOption="wacfilter.items"
+              :multiName="index"
+            ></customSelect>
+          </div>
+        </div>
+        <div v-if="wacfilters.length > 1" @click="removeFilter(index)" class="wac-filter-close">
+          <span class="dashicons dashicons-no-alt"></span>
         </div>
       </div>
-      <div class="wac-filter-list" v-if="wacfilter.type === 'products'">
-        <div class="wac-form">
-          <label for="wac_filter_lists">
-            <strong>Lists Type</strong>
-          </label>
-          <select id="wac_filter_lists" name="wac_filter_lists[]" v-model="wacfilter.lists">
-            <option
-              v-for="(ListsType, index) in ListsTypes"
-              :key="'ListsType-' + index"
-              :value="ListsType.value"
-            >{{ ListsType.label }}</option>
-          </select>
-        </div>
+      <div class="wac_buttons">
+        <button type="button" @click="update" class="button-primary">Save</button>
+        <button type="button" @click="cloneFilter" class="button-primary">Add Filter</button>
       </div>
-      <div class="wac-col-3" v-if="wacfilter.type === 'products'">
-        <div class="wac-form">
-          <label for="wac_filter_products">
-            <strong>Select Products</strong>
-          </label>
-          <customSelect
-            v-on:selectOptions="selectOptions"
-            :multiData="multiData"
-            :defaultOption="wacfilter.items"
-            :multiName="index"
-          ></customSelect>
-        </div>
-      </div>
-      <div v-if="wacfilters.length > 1" @click="removeFilter(index)" class="wac-filter-close">
-        <span class="dashicons dashicons-no-alt"></span>
-      </div>
-    </div>
-    <div class="wac_buttons">
-      <button type="button" @click="update" class="button-primary">Save</button>
-      <button type="button" @click="cloneFilter" class="button-primary">Add Filter</button>
     </div>
   </div>
 </template>
@@ -64,6 +67,7 @@ export default {
   props: ["nonce"],
   data() {
     return {
+      loading: true,
       filterTypes: [
         { label: "All Products", value: "all_products" },
         { label: "Products", value: "products" },
@@ -124,6 +128,7 @@ export default {
         });
     },
     getFilters() {
+      this.loading = true;
       let formData = {
         action: "wac_get_filters",
         post_id: wac_post.id,
@@ -135,6 +140,7 @@ export default {
           if (response.data != [] && response.data != null) {
             root.wacfilters = response.data;
           }
+          root.loading = false;
         })
         .catch((error) => {
           console.log(error);
