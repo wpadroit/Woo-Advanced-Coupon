@@ -108,23 +108,40 @@ class Wac_front
     public function wac_variable_product_discount($product, $min_regular_price, $max_regular_price)
     {
         $data = WC()->session->get("wac_product_coupon");
-        foreach ($data["items"] as $woocoupon) {
-            $validate = Validator::check(null, null, $woocoupon);
-            if (!$validate) {
-                return 0;
-            }
-            $wac_main        = get_post_meta($woocoupon, "wac_coupon_main", true);
-            $wac_coupon_type = $wac_main["type"];
-            $wac_discounts = get_post_meta($woocoupon, "wac_coupon_discounts", true);
-            $wac_filters     = get_post_meta($woocoupon, "wac_filters", true);
+        if ($data) {
+            if ($data["first_coupon"] === "no") {
+                foreach ($data["items"] as $woocoupon) {
+                    $validate = Validator::check(null, null, $woocoupon);
+                    if (!$validate) {
+                        return 0;
+                    }
+                    $wac_main        = get_post_meta($woocoupon, "wac_coupon_main", true);
+                    $wac_coupon_type = $wac_main["type"];
+                    $wac_discounts = get_post_meta($woocoupon, "wac_coupon_discounts", true);
+                    $wac_filters     = get_post_meta($woocoupon, "wac_filters", true);
 
-            if ($wac_coupon_type == "product") {
-                $min_discount = 0;
-                $max_discount = 0;
-                foreach ($wac_filters as $wac_filter) {
-                    if ($wac_filter["type"] == "products") {
-                        foreach ($wac_filter["items"] as $wacproducts) {
-                            if ($wacproducts["value"] == $product->get_id()) {
+                    if ($wac_coupon_type == "product") {
+                        $min_discount = 0;
+                        $max_discount = 0;
+                        foreach ($wac_filters as $wac_filter) {
+                            if ($wac_filter["type"] == "products") {
+                                foreach ($wac_filter["items"] as $wacproducts) {
+                                    if ($wacproducts["value"] == $product->get_id()) {
+                                        switch ($wac_discounts["type"]) {
+                                            case 'percentage':
+                                                $min_discount = ($wac_discounts["value"] / 100) * (float)$min_regular_price;
+                                                $max_discount = ($wac_discounts["value"] / 100) * (float)$max_regular_price;
+                                                break;
+                                            case 'fixed':
+                                                $min_discount = $wac_discounts["value"];
+                                                $max_discount = $wac_discounts["value"];
+                                                break;
+                                        }
+                                        return [$min_discount, $max_discount];
+                                    }
+                                }
+                                return 0;
+                            } elseif ($wac_filter["type"] == "all_products") {
                                 switch ($wac_discounts["type"]) {
                                     case 'percentage':
                                         $min_discount = ($wac_discounts["value"] / 100) * (float)$min_regular_price;
@@ -138,19 +155,6 @@ class Wac_front
                                 return [$min_discount, $max_discount];
                             }
                         }
-                        return 0;
-                    } elseif ($wac_filter["type"] == "all_products") {
-                        switch ($wac_discounts["type"]) {
-                            case 'percentage':
-                                $min_discount = ($wac_discounts["value"] / 100) * (float)$min_regular_price;
-                                $max_discount = ($wac_discounts["value"] / 100) * (float)$max_regular_price;
-                                break;
-                            case 'fixed':
-                                $min_discount = $wac_discounts["value"];
-                                $max_discount = $wac_discounts["value"];
-                                break;
-                        }
-                        return [$min_discount, $max_discount];
                     }
                 }
             }
