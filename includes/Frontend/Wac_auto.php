@@ -159,7 +159,7 @@ class Wac_auto
 								if ($wacproducts["value"] == $product->get_id()) {
 									switch ($wac_discounts["type"]) {
 										case 'percentage':
-											$discount = ($wac_discounts["value"] / 100) * $product->get_regular_price();
+											$discount = ($wac_discounts["value"] / 100) * (float)$product->get_regular_price();
 											break;
 										case 'fixed':
 											$discount = $wac_discounts["value"];
@@ -174,7 +174,7 @@ class Wac_auto
 							$discount = 0;
 							switch ($wac_discounts["type"]) {
 								case 'percentage':
-									$discount = ($wac_discounts["value"] / 100) * $product->get_regular_price();
+									$discount = ($wac_discounts["value"] / 100) * (float)$product->get_regular_price();
 									break;
 								case 'fixed':
 									$discount = $wac_discounts["value"];
@@ -216,7 +216,7 @@ class Wac_auto
 							if ($wacproducts["value"] == $product->get_id()) {
 								switch ($wac_discounts["type"]) {
 									case 'percentage':
-										$discount = ($wac_discounts["value"] / 100) * $product->get_regular_price();
+										$discount = ($wac_discounts["value"] / 100) * (float)$product->get_regular_price();
 										break;
 									case 'fixed':
 										$discount = $wac_discounts["value"];
@@ -232,7 +232,7 @@ class Wac_auto
 						$discount = 0;
 						switch ($wac_discounts["type"]) {
 							case 'percentage':
-								$discount = ($wac_discounts["value"] / 100) * $product->get_regular_price();
+								$discount = ($wac_discounts["value"] / 100) * (float)$product->get_regular_price();
 								break;
 							case 'fixed':
 								$discount = $wac_discounts["value"];
