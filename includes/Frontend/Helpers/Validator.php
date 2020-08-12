@@ -20,7 +20,17 @@ class Validator
         self::$post_id = $post_id;
         self::$wac_id = $wac_id;
 
-        if (!did_action('wp_loaded')) {
+        if ($wac_id != null) {
+            $result = self::wac_fiter_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
+            if ($result) {
+                $result = self::wac_multi_validate(self::$coupon, self::$post_id) ? true : false;
+            }
+            if ($result) {
+                $result = self::wac_rules_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
+            }
+            self::$result = $result;
+            return $result;
+        } elseif (!did_action('wp_loaded')) {
             add_action("wp_loaded", function () {
                 $result = self::wac_fiter_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
                 if ($result) {
@@ -74,7 +84,7 @@ class Validator
             $wac_main = get_post_meta($wac_id, "wac_coupon_main", true);
         }
 
-        if ($wac_main["type"] == "product") {
+        if (!$filters || !$wac_main || $wac_main["type"] == "product") {
             return $result;
         }
 
@@ -125,13 +135,13 @@ class Validator
                 return $result;
             } else {
                 $rules = get_post_meta($post_meta["list_id"], "wac_coupon_rules", true);
-                if ($rules["rules"] == null) {
+                if (!$rules || $rules["rules"] == null) {
                     return $result;
                 }
             }
         } else {
             $rules = get_post_meta($wac_id, "wac_coupon_rules", true);
-            if ($rules["rules"] == null) {
+            if (!$rules || $rules["rules"] == null) {
                 return $result;
             }
         }
