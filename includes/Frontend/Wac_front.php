@@ -218,9 +218,11 @@ class Wac_front
             $wac_id = $post_meta["list_id"];
             $wac_main = get_post_meta($wac_id, "wac_coupon_main", true);
             $wac_discounts = get_post_meta($wac_id, "wac_coupon_discounts", true);
-
             $wac_filters = get_post_meta($post_meta["list_id"], "wac_filters", true);
-
+            if (!$wac_main || !$wac_discounts || !$wac_filters) {
+                return;
+                exit;
+            }
             $wac_coupon_type = $wac_main["type"];
             if ($wac_coupon_type == "cart") {
                 switch ($wac_discounts["type"]) {
@@ -311,6 +313,9 @@ class Wac_front
             }
             $wac_id = $post_meta["list_id"];
             $wac_main = get_post_meta($wac_id, "wac_coupon_main", true);
+            if (!$wac_main) {
+                return $price;
+            }
             $wac_discounts = get_post_meta($wac_id, "wac_coupon_discounts", true);
             $wac_filters = get_post_meta($post_meta["list_id"], "wac_filters", true);
             if ($wac_main["type"] != "product") {

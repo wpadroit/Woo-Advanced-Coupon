@@ -43,7 +43,19 @@ class Wac_auto
 		];
 		$posts      = get_posts($args);
 		$woocoupons = $this->wac_filter_woocoupn($posts);
+		$first_coupon          = get_option("wac_first_time_purchase_coupon");
+		if (count($woocoupons) == 0) {
+			if ($first_coupon == 0) {
+				WC()->session->__unset("wac_product_coupon");
+			}
+		}
 		foreach ($woocoupons as $woocoupon) {
+			$wac_main = get_post_meta($woocoupon->ID, "wac_coupon_main", true);
+			if ($wac_main["type"] != "product") {
+				if ($first_coupon == 0) {
+					WC()->session->__unset("wac_product_coupon");
+				}
+			}
 			$validate = Validator::check(null, null, $woocoupon->ID);
 			if ($validate) {
 				$apply                 = new Apply;
@@ -116,6 +128,11 @@ class Wac_auto
 		$user_id = $user->ID;
 		$coupon  = get_option("wac_first_time_purchase_coupon");
 		if ($coupon == 0) {
+			$session_data = WC()->session->get("wac_product_coupon");
+			if ($session_data && $session_data["first_coupon"] == "yes") {
+				WC()->session->__unset("wac_product_coupon");
+				return;
+			}
 			return;
 		}
 		$args   = array(

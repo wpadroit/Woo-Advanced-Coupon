@@ -84,7 +84,7 @@ class Validator
             $wac_main = get_post_meta($wac_id, "wac_coupon_main", true);
         }
 
-        if ($wac_main["type"] == "product") {
+        if (!$filters || !$wac_main || $wac_main["type"] == "product") {
             return $result;
         }
 
@@ -135,13 +135,13 @@ class Validator
                 return $result;
             } else {
                 $rules = get_post_meta($post_meta["list_id"], "wac_coupon_rules", true);
-                if ($rules["rules"] == null) {
+                if (!$rules || $rules["rules"] == null) {
                     return $result;
                 }
             }
         } else {
             $rules = get_post_meta($wac_id, "wac_coupon_rules", true);
-            if ($rules["rules"] == null) {
+            if (!$rules || $rules["rules"] == null) {
                 return $result;
             }
         }
