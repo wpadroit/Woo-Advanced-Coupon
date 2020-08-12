@@ -246,18 +246,20 @@ class Wac_Coupon
 		}
 
 		$type = $_POST["wac_coupon_type"];
-		$main = [
-			"type" => $type,
-		];
 
-		$discount_type = $_POST["wac_discount_type"];
-		$discount_value = $_POST["wac_discount_value"] ? $_POST["wac_discount_value"] : 0;
-
-		if (isset($_POST["wac_discount_label"]) && $type == "cart") {
+		if (isset($_POST["wac_discount_label"])) {
 			$discount_label = $_POST["wac_discount_label"];
 		} else {
 			$discount_label = null;
 		}
+
+		$main = [
+			"type" => $type,
+			"label" => $discount_label
+		];
+
+		$discount_type = $_POST["wac_discount_type"];
+		$discount_value = $_POST["wac_discount_value"] ? $_POST["wac_discount_value"] : 0;
 
 		if (isset($_POST["discountLength"]) && $type == "bulk") {
 			$discountLength = $_POST["discountLength"];
@@ -273,8 +275,7 @@ class Wac_Coupon
 		} else {
 			$wac_discount = [
 				"type" => $discount_type,
-				"value" => $discount_value,
-				"label" => $discount_label
+				"value" => $discount_value
 			];
 		}
 
@@ -293,8 +294,12 @@ class Wac_Coupon
 			}
 		}
 
+		if ($type == "product") {
+			$wac_rules = null;
+		}
+
 		$rules = [
-			"relation" => $_POST["wac_rule_relation"],
+			"relation" => $_POST["wac_rule_relation"] ? $_POST["wac_rule_relation"] : "match_all",
 			"rules" => $wac_rules
 		];
 

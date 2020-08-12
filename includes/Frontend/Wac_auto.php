@@ -44,9 +44,7 @@ class Wac_auto
 		];
 		$posts      = get_posts($args);
 		$woocoupons = $this->wac_filter_woocoupn($posts);
-		$i          = 0;
 		foreach ($woocoupons as $woocoupon) {
-			$i++;
 			$validate = Validator::check(null, null, $woocoupon->ID);
 			if ($validate) {
 				$apply                 = new Apply;
@@ -55,7 +53,7 @@ class Wac_auto
 				if ($res_data) {
 					$cart = WC()->cart;
 					if ($wac_woo_setting_multi == "yes") {
-						$cart->add_fee($res_data["label"] . '-' . $i, -$res_data["amount"]);
+						$cart->add_fee($res_data["label"], -$res_data["amount"]);
 					} else {
 						$cart->add_fee($res_data["label"], -$res_data["amount"]);
 						break;

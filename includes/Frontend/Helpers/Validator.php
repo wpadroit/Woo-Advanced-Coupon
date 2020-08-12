@@ -23,23 +23,23 @@ class Validator
         if (!did_action('wp_loaded')) {
             add_action("wp_loaded", function () {
                 $result = self::wac_fiter_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
-                // if ($result) {
-                //     $result = self::wac_multi_validate(self::$coupon, self::$post_id) ? true : false;
-                // }
-                // if ($result) {
-                //     $result = self::wac_rules_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
-                // }
+                if ($result) {
+                    $result = self::wac_multi_validate(self::$coupon, self::$post_id) ? true : false;
+                }
+                if ($result) {
+                    $result = self::wac_rules_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
+                }
                 self::$result = $result;
                 return $result;
             });
         } else {
-            $result = self::wac_fiter_validate(self::$coupon, self::$post_id, self::$wac_id) ? self::wac_fiter_validate(self::$coupon, self::$post_id, self::$wac_id) : false;
-            // if ($result) {
-            //     $result = self::wac_multi_validate(self::$coupon, self::$post_id) ? true : false;
-            // }
-            // if ($result) {
-            //     $result = self::wac_rules_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
-            // }
+            $result = self::wac_fiter_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
+            if ($result) {
+                $result = self::wac_multi_validate(self::$coupon, self::$post_id) ? true : false;
+            }
+            if ($result) {
+                $result = self::wac_rules_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
+            }
             self::$result = $result;
             return $result;
         }
@@ -140,7 +140,7 @@ class Validator
             if ($rule["type"] == "cart_subtotal") {
                 switch ($operator) {
                     case 'less_than':
-                        $subtotal = WC()->cart->get_cart_subtotal();
+                        $subtotal = WC()->cart->cart_contents_total;
                         if ($calculate == "from_cart") {
                             if (!($subtotal < $value)) {
                                 $result = false;
@@ -153,7 +153,7 @@ class Validator
                         }
                         break;
                     case 'less_than_or_equal':
-                        $subtotal = WC()->cart->get_cart_subtotal();
+                        $subtotal = WC()->cart->cart_contents_total;
                         if ($calculate == "from_cart") {
                             if (!($subtotal <= $value)) {
                                 $result = false;
@@ -166,7 +166,7 @@ class Validator
                         }
                         break;
                     case 'greater_than':
-                        $subtotal = WC()->cart->get_cart_subtotal();
+                        $subtotal = WC()->cart->cart_contents_total;
                         if ($calculate == "from_cart") {
                             if (!($subtotal > $value)) {
                                 $result = false;
@@ -179,7 +179,7 @@ class Validator
                         }
                         break;
                     case 'greater_than_or_equal':
-                        $subtotal = WC()->cart->get_cart_subtotal();
+                        $subtotal = WC()->cart->cart_contents_total;
                         if ($calculate == "from_cart") {
                             if (!($subtotal >= $value)) {
                                 $result = false;

@@ -19,6 +19,11 @@ class Apply
         $wac_coupon_type = $wac_main["type"];
         $discount_amount = 0;
         $discount_label = get_option("wac_first_time_purchase_coupon_label");
+        if ($wac_coupon_type != "product") {
+            if (isset($wac_main["label"]) || !empty($wac_main["label"] || !$wac_main["label"] == '')) {
+                $discount_label = $wac_main["label"];
+            }
+        }
         if ($wac_coupon_type == "cart") {
             switch ($wac_discounts["type"]) {
                 case 'percentage':
@@ -29,9 +34,6 @@ class Apply
                     break;
             }
             $discount_amount += $discount_total;
-            if (empty($wac_discounts["label"] || $wac_discounts["label"] == '')) {
-                $discount_label = $wac_discounts["label"];
-            }
         } else if ($wac_coupon_type == "product") {
             $first_coupon          = get_option("wac_first_time_purchase_coupon");
             if ($first_coupon != 0) {
