@@ -16,6 +16,15 @@
           </select>
         </div>
       </div>
+
+      <div class="wac-col-3 wac_buttons" v-if="value !== 'product'">
+        <div class="wac-form">
+          <label for="wac_discount_label">
+            <strong>Discount Label</strong>
+          </label>
+          <input type="text" id="wac_discount_label" name="wac_discount_label" v-model="label" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -26,6 +35,7 @@ export default {
   data() {
     return {
       value: "product",
+      label: null,
       discounts: [
         { label: "Product Adjustment", value: "product" },
         { label: "Cart Adjustment", value: "cart" },
@@ -51,6 +61,7 @@ export default {
         .then((response) => {
           if (response.data != [] && response.data != "") {
             root.value = response.data.type;
+            root.label = response.data.label;
             root.$root.wac_form.type = response.data.type;
           }
         })

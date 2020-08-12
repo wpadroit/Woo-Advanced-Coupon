@@ -26,19 +26,6 @@
           />
         </div>
       </div>
-      <div class="wac-col-3" v-if="$root.wac_form.type === 'cart'">
-        <div class="wac-form">
-          <label for="wac_discount_label">
-            <strong>Discount Label</strong>
-          </label>
-          <input
-            type="text"
-            id="wac_discount_label"
-            name="wac_discount_label"
-            v-model="discounts.label"
-          />
-        </div>
-      </div>
     </div>
     <div v-else>
       <div
@@ -121,7 +108,6 @@ export default {
   data() {
     return {
       discounts: {
-        label: null,
         type: "percentage",
         value: null,
       },

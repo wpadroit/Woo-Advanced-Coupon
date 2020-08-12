@@ -156,7 +156,7 @@ class Wac_front
                 }
                 if ($post_meta["overwrite_discount"] === null) {
                     $store_coupons[$coupon] = $couponData->get_amount();
-                    $cart->add_fee($wac_discounts["label"] ? $wac_discounts["label"] : "Cart Discount", -$discount_total);
+                    $cart->add_fee($wac_main["label"] ? $wac_main["label"] : "Cart Discount", -$discount_total);
                     $discount_amount += $couponData->get_amount();
                 } else {
                     $store_coupons[$coupon] = $discount_total;
@@ -190,7 +190,7 @@ class Wac_front
                         }
                         if ($post_meta["overwrite_discount"] === null) {
                             $store_coupons[$coupon] = $couponData->get_amount();
-                            $cart->add_fee("Bulk Discount", -$discount_total);
+                            $cart->add_fee($wac_main["label"] ? $wac_main["label"] : "Bulk Discount", -$discount_total);
                             $discount_amount += $couponData->get_amount();
                         } else {
                             $store_coupons[$coupon] = $discount_total;
