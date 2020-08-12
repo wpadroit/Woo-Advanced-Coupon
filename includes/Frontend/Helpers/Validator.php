@@ -68,8 +68,14 @@ class Validator
                 return $result;
             }
             $filters = get_post_meta($post_meta["list_id"], "wac_filters", true);
+            $wac_main = get_post_meta($post_meta["list_id"], "wac_coupon_main", true);
         } else {
             $filters = get_post_meta($wac_id, "wac_filters", true);
+            $wac_main = get_post_meta($wac_id, "wac_coupon_main", true);
+        }
+
+        if ($wac_main["type"] == "product") {
+            return $result;
         }
 
         foreach ($filters as $filter) {

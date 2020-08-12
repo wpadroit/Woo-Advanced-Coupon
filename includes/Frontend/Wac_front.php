@@ -70,9 +70,23 @@ class Wac_front
             if ($discount == "") {
                 return $price;
             }
-            $min_sale_price = $min_regular_price + $discount;
-            $max_sale_price = $max_regular_price + $discount;
+
+            if ($discount == 0) {
+                $new_discount = $this->wac_variable_product_discount($product, $min_regular_price, $max_regular_price);
+                if ($new_discount != 0) {
+                    $min_sale_price = $min_regular_price - $new_discount[0];
+                    $max_sale_price = $max_regular_price - $new_discount[1];
+                } else {
+                    $min_sale_price = $min_regular_price + $discount;
+                    $max_sale_price = $max_regular_price + $discount;
+                }
+            } else {
+                $min_sale_price = $min_regular_price + $discount;
+                $max_sale_price = $max_regular_price + $discount;
+            }
+
             $price_html = "<del>" . wc_price($min_regular_price) . " – " . wc_price($max_regular_price) . "</del><br/>" . wc_price($min_sale_price) . " – " . wc_price($max_sale_price);
+
             if ($wac_woo_setting_show_product_discount == "no") {
                 return wc_price($min_sale_price) . " – " . wc_price($max_sale_price);
             } else {
@@ -87,6 +101,65 @@ class Wac_front
         }
         return $price;
     }
+
+    /**
+     * @return discount
+     **/
+    public function wac_variable_product_discount($product, $min_regular_price, $max_regular_price)
+    {
+        $data = WC()->session->get("wac_product_coupon");
+        foreach ($data["items"] as $woocoupon) {
+            $validate = Validator::check(null, null, $woocoupon);
+            if (!$validate) {
+                return 0;
+            }
+            $wac_main        = get_post_meta($woocoupon, "wac_coupon_main", true);
+            $wac_coupon_type = $wac_main["type"];
+            $wac_discounts = get_post_meta($woocoupon, "wac_coupon_discounts", true);
+            $wac_filters     = get_post_meta($woocoupon, "wac_filters", true);
+
+            if ($wac_coupon_type == "product") {
+                $min_discount = 0;
+                $max_discount = 0;
+                foreach ($wac_filters as $wac_filter) {
+                    if ($wac_filter["type"] == "products") {
+                        foreach ($wac_filter["items"] as $wacproducts) {
+                            if ($wacproducts["value"] == $product->get_id()) {
+                                switch ($wac_discounts["type"]) {
+                                    case 'percentage':
+                                        $min_discount = ($wac_discounts["value"] / 100) * (float)$min_regular_price;
+                                        $max_discount = ($wac_discounts["value"] / 100) * (float)$max_regular_price;
+                                        break;
+                                    case 'fixed':
+                                        $min_discount = $wac_discounts["value"];
+                                        $max_discount = $wac_discounts["value"];
+                                        break;
+                                }
+                                return [$min_discount, $max_discount];
+                            }
+                        }
+                        return 0;
+                    } elseif ($wac_filter["type"] == "all_products") {
+                        switch ($wac_discounts["type"]) {
+                            case 'percentage':
+                                $min_discount = ($wac_discounts["value"] / 100) * (float)$min_regular_price;
+                                $max_discount = ($wac_discounts["value"] / 100) * (float)$max_regular_price;
+                                break;
+                            case 'fixed':
+                                $min_discount = $wac_discounts["value"];
+                                $max_discount = $wac_discounts["value"];
+                                break;
+                        }
+                        return [$min_discount, $max_discount];
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+
+
+
     /**
      * WooCommerce display cart price with <del>#...</del>
      *
@@ -245,7 +318,7 @@ class Wac_front
                         if ($cartProduct["data"]->get_id() == $product->get_id()) {
                             switch ($wac_discounts["type"]) {
                                 case 'percentage':
-                                    $discount = ($wac_discounts["value"] / 100) * $price;
+                                    $discount = ($wac_discounts["value"] / 100) * (float)$product->get_regular_price();
                                     break;
                                 case 'fixed':
                                     $discount = $wac_discounts["value"];
@@ -261,7 +334,7 @@ class Wac_front
                         $discount = 0;
                         switch ($wac_discounts["type"]) {
                             case 'percentage':
-                                $discount = ($wac_discounts["value"] / 100) * $price;
+                                $discount = ($wac_discounts["value"] / 100) * (float)$product->get_regular_price();
                                 break;
                             case 'fixed':
                                 $discount = $wac_discounts["value"];
