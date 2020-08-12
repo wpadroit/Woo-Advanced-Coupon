@@ -15,6 +15,9 @@ class Apply
     {
         $cart = WC()->cart;
         $wac_main = get_post_meta($coupon, "wac_coupon_main", true);
+        if (!$wac_main) {
+            return false;
+        }
         $wac_discounts = get_post_meta($coupon, "wac_coupon_discounts", true);
         $wac_coupon_type = $wac_main["type"];
         $discount_amount = 0;
