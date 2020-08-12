@@ -91,11 +91,10 @@ class Validator
                 }, $productLists);
                 if ($filter["lists"] == "inList") {
                     foreach ($wac_products as $wac_product) {
-                        foreach ($productLists as $productList) {
-                            if ($wac_product != $productList) {
-                                $result = false;
-                                break;
-                            }
+                        $match = in_array($wac_product, $productLists);
+                        if ($match == false) {
+                            $result = false;
+                            break;
                         }
                     }
                 } else {
