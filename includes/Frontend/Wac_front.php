@@ -49,7 +49,7 @@ class Wac_front
         $max_sale_price = max($child_prices);
 
         $price_html = "<del>" . wc_price($min_regular_price) . " – " . wc_price($max_regular_price) . "</del><br/>" . wc_price($min_sale_price) . " – " . wc_price($max_sale_price);
-        if ($wac_woo_setting_show_product_discount == "no") {
+        if ($wac_woo_setting_show_product_discount == "no" || $min_regular_price == $min_sale_price || $max_regular_price == $max_sale_price) {
             return wc_price($min_sale_price) . " – " . wc_price($max_sale_price);
         } else {
             return $price_html;

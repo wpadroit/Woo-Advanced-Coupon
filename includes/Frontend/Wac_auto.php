@@ -18,10 +18,9 @@ class Wac_auto
 			return;
 		}
 		add_action('woocommerce_init', [$this, "wac_auto_coupon_on_cart"]);
-		// add_action("woocommerce_before_cart", [$this, "wac_do_before_cart"]);
 		add_action('woocommerce_cart_calculate_fees', [$this, "wac_auto_coupon_on_cart"]);
 		add_filter("woocommerce_product_get_price", [$this, "wac_change_price"], 10, 2);
-		add_filter("woocommerce_product_variation_get_price", [$this, "wac_change_price"], 10, 2);
+		add_filter("woocommerce_product_variation_get_price", [$this, "wac_variable_change_price"], 10, 2);
 	}
 
 	/**
@@ -214,6 +213,60 @@ class Wac_auto
 					if ($wac_filter["type"] == "products") {
 						foreach ($wac_filter["items"] as $wacproducts) {
 							if ($wacproducts["value"] == $product->get_id()) {
+								switch ($wac_discounts["type"]) {
+									case 'percentage':
+										$discount = ($wac_discounts["value"] / 100) * (float)$product->get_regular_price();
+										break;
+									case 'fixed':
+										$discount = $wac_discounts["value"];
+										break;
+								}
+								$amount = ((float)$product->get_regular_price() - $discount);
+								$product->set_sale_price($amount);
+								return $amount;
+							}
+						}
+						return $price;
+					} elseif ($wac_filter["type"] == "all_products") {
+						$discount = 0;
+						switch ($wac_discounts["type"]) {
+							case 'percentage':
+								$discount = ($wac_discounts["value"] / 100) * (float)$product->get_regular_price();
+								break;
+							case 'fixed':
+								$discount = $wac_discounts["value"];
+								break;
+						}
+						$amount = ((float)$product->get_regular_price() - $discount);
+						$product->set_sale_price($amount);
+						return $amount;
+					}
+				}
+			} else {
+				return $price;
+			}
+		}
+		return $price;
+	}
+
+	public function wac_variable_change_price($price, $product)
+	{
+		$data = WC()->session->get("wac_product_coupon");
+		foreach ($data["items"] as $woocoupon) {
+			$validate = Validator::check(null, null, $woocoupon);
+			if (!$validate) {
+				return $price;
+			}
+			$wac_main        = get_post_meta($woocoupon, "wac_coupon_main", true);
+			$wac_coupon_type = $wac_main["type"];
+			$wac_discounts = get_post_meta($woocoupon, "wac_coupon_discounts", true);
+			$wac_filters     = get_post_meta($woocoupon, "wac_filters", true);
+
+			if ($wac_coupon_type == "product") {
+				foreach ($wac_filters as $wac_filter) {
+					if ($wac_filter["type"] == "products") {
+						foreach ($wac_filter["items"] as $wacproducts) {
+							if ($wacproducts["value"] == $product->get_parent_id()) {
 								switch ($wac_discounts["type"]) {
 									case 'percentage':
 										$discount = ($wac_discounts["value"] / 100) * (float)$product->get_regular_price();
