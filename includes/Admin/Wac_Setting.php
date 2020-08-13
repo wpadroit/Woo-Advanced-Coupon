@@ -10,23 +10,28 @@ class Wac_Setting
 {
     public function __construct()
     {
-        add_filter('woocommerce_settings_tabs_array', [$this, 'wac_add_settings_tab'], 50);
-        add_filter('woocommerce_settings_tabs_wac_woo_setting', [$this, 'wac_settings_tab_content']);
-        add_filter('woocommerce_update_options_wac_woo_setting', [$this, 'wac_update_tab_settings']);
+        add_action('admin_menu', [$this, 'wac_menu_items']);
+        add_action('admin_init', [$this, 'wac_register_settings']);
     }
 
-    public function wac_add_settings_tab($sections)
+    public function wac_menu_items()
     {
-        $sections['wac_woo_setting'] = __('Wac Settings', 'wac');
-        return $sections;
+        add_submenu_page('edit.php?post_type=woocoupon', 'WooCoupon settings', 'Settings', "manage_options", 'woocoupon_settings', [$this, 'woocoupon_settings_content']);
     }
 
-    public function wac_settings_tab_content()
+    /**
+     * register settings options
+     **/
+    public function wac_register_settings()
     {
-        woocommerce_admin_fields($this->get_wac_settings());
+        register_setting('woocoupon_settings', 'wac_first_time_purchase_coupon');
+        register_setting('woocoupon_settings', 'wac_first_time_purchase_coupon_label');
+        register_setting('woocoupon_settings', 'wac_woo_setting_show_product_discount');
+        register_setting('woocoupon_settings', 'wac_woo_setting_multi');
+        register_setting('woocoupon_settings', 'wac_woo_setting_url');
     }
 
-    public function get_wac_settings()
+    public function woocoupon_settings_content()
     {
         $args = [
             "post_type" => "woocoupon",
@@ -37,65 +42,98 @@ class Wac_Setting
         foreach ($wac_data as $data) {
             $wac_coupons[$data->ID] = $data->post_title;
         }
-        $settings = array(
-            'section_title' => array(
-                'name'     => __('Woo Coupon Settings', 'wac'),
-                'type'     => 'title',
-                'desc'     => 'These settings can effect both coupons',
-                'id'       => 'wac_woo_settings_section_title'
-            ),
-            'wac_first_time_purchase_coupon' => array(
-                'name' => __('Coupon for first Purchase', 'wac'),
-                'type' => 'select',
-                'options' => $wac_coupons,
-                'desc' => __('Select a discount from here which you want to enable for new customers', 'wac'),
-                'id'   => 'wac_first_time_purchase_coupon'
-            ),
-            'wac_first_time_purchase_coupon_label' => array(
-                'name' => __('First Purchase coupon label', 'wac'),
-                'type' => 'text',
-                'default' => 'Discounted Amount',
-                'desc' => __('Display Label on cart', 'wac'),
-                'id'   => 'wac_first_time_purchase_coupon_label'
-            ),
-            'wac_woo_setting_show_product_discount' => array(
-                'name' => __('Show Product Discount', 'wac'),
-                'type' => 'select',
-                'options' => [
-                    "yes" => "Yes",
-                    "no" => "No",
-                ],
-                'desc' => __('Set "no" , if you want to hide product discount', 'wac'),
-                'id'   => 'wac_woo_setting_show_product_discount'
-            ),
-            'wac_woo_setting_multi' => array(
-                'name' => __('Multi Coupon', 'wac'),
-                'type' => 'select',
-                'options' => [
-                    "yes" => "Yes",
-                    "no" => "No",
-                ],
-                'desc' => __('Set "no" , if you never want to apply Multi coupon in cart', 'wac'),
-                'id'   => 'wac_woo_setting_multi'
-            ),
-            'wac_woo_setting_url' => array(
-                'name' => __('Coupon Url slug Name', 'wac'),
-                'type' => 'text',
-                'default' => 'coupon',
-                'desc' => get_home_url() . '/?<b>' . get_option('wac_woo_setting_url') . '</b>=coupon_code',
-                'id'   => 'wac_woo_setting_url'
-            ),
-            'section_end' => array(
-                'type' => 'sectionend',
-                'id' => 'wac_woo_settings_section_end'
-            )
-        );
+?>
+        <div class="wrap">
+            <?php settings_errors(); ?>
+            <h1>WooCoupon Settings</h1>
+            <p>These settings can effect both coupons</p>
+            <form method="post" action="options.php">
+                <?php settings_fields('woocoupon_settings'); ?>
+                <?php do_settings_sections('woocoupon_settings'); ?>
+                <table class="form-table">
+                    <tbody>
+                        <tr>
+                            <th scope="row">
+                                <label for="wac_first_time_purchase_coupon">
+                                    <?php _e('Coupon for first Purchase', 'wac'); ?>
+                                </label>
+                            </th>
+                            <td class="forminp forminp-select">
+                                <select name="wac_first_time_purchase_coupon" id="wac_first_time_purchase_coupon" required>
+                                    <?php foreach ($wac_coupons as $key => $value) : ?>
+                                        <option value="<?php echo $key; ?>" <?php if ($key == get_option("wac_first_time_purchase_coupon")) {
+                                                                                echo "selected";
+                                                                            } ?>><?php echo $value; ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <p class="description"><?php _e('Select a discount from here which you want to enable for new customers', 'wac'); ?></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="wac_first_time_purchase_coupon_label">
+                                    <?php _e('First Purchase coupon label', 'wac'); ?>
+                                </label>
+                            </th>
+                            <td>
+                                <input type="text" name="wac_first_time_purchase_coupon_label" id="wac_first_time_purchase_coupon_label" value="<?php echo esc_attr(get_option('wac_first_time_purchase_coupon_label')); ?>" required />
+                                <p class="description"><?php _e('Display Label on cart', 'wac'); ?></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="wac_woo_setting_show_product_discount">
+                                    <?php _e('Show Product Discount', 'wac'); ?>
+                                </label>
+                            </th>
+                            <td>
+                                <select name="wac_woo_setting_show_product_discount" id="wac_woo_setting_show_product_discount" required>
+                                    <option value="yes" <?php if ('yes' == get_option("wac_woo_setting_show_product_discount")) {
+                                                            echo "selected";
+                                                        } ?>>Yes</option>
+                                    <option value="no" <?php if ('no' == get_option("wac_woo_setting_show_product_discount")) {
+                                                            echo "selected";
+                                                        } ?>>No</option>
+                                </select>
+                                <p class="description"><?php _e('Set "no" , if you want to hide product discount', 'wac'); ?></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="wac_woo_setting_multi">
+                                    <?php _e('Multi Coupon', 'wac'); ?>
+                                </label>
+                            </th>
+                            <td>
+                                <select name="wac_woo_setting_multi" id="wac_woo_setting_multi" required>
+                                    <option value="yes" <?php if ('yes' == get_option("wac_woo_setting_multi")) {
+                                                            echo "selected";
+                                                        } ?>>Yes</option>
+                                    <option value="no" <?php if ('no' == get_option("wac_woo_setting_multi")) {
+                                                            echo "selected";
+                                                        } ?>>No</option>
+                                </select>
+                                <p class="description"><?php _e('Set "no" , if you never want to apply Multi coupon in cart', 'wac'); ?></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="wac_woo_setting_url">
+                                    <?php _e('Coupon Url slug Name', 'wac'); ?>
+                                </label>
+                            </th>
+                            <td>
+                                <input type="text" name="wac_woo_setting_url" id="wac_woo_setting_url" value="<?php echo esc_attr(get_option('wac_woo_setting_url')); ?>" required />
+                                <p class="description"><?php echo get_home_url() . '/?<b>' . get_option('wac_woo_setting_url') . '</b>=coupon_code'; ?></p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
 
-        return apply_filters('wac_woo_settings', $settings);
-    }
+                <?php submit_button(); ?>
 
-    public function wac_update_tab_settings()
-    {
-        woocommerce_update_options($this->get_wac_settings());
+            </form>
+        </div>
+<?php
     }
 }
