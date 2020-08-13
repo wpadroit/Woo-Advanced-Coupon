@@ -39,7 +39,20 @@ class Apply
             $discount_amount += $discount_total;
         } else if ($wac_coupon_type == "product") {
             $first_coupon          = get_option("wac_first_time_purchase_coupon");
+            $wac_first_coupon_main = false;
             if ($first_coupon != 0) {
+                $wac_first_coupon_main = get_post_meta($first_coupon, "wac_coupon_main", true);
+                if ($wac_first_coupon_main) {
+                    if ($wac_first_coupon_main["type"] == "product") {
+                        $wac_first_coupon_main = true;
+                    } else {
+                        $wac_first_coupon_main = false;
+                    }
+                } else {
+                    update_option("wac_first_time_purchase_coupon", 0);
+                }
+            }
+            if ($wac_first_coupon_main) {
                 WC()->session->set("wac_product_coupon", [
                     "first_coupon" => "yes"
                 ]);

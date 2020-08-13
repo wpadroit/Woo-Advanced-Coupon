@@ -20,39 +20,14 @@ class Validator
         self::$post_id = $post_id;
         self::$wac_id = $wac_id;
 
-        if ($wac_id != null) {
-            $result = self::wac_fiter_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
-            if ($result) {
-                $result = self::wac_multi_validate(self::$coupon, self::$post_id) ? true : false;
-            }
-            if ($result) {
-                $result = self::wac_rules_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
-            }
-            self::$result = $result;
-            return $result;
-        } elseif (!did_action('wp_loaded')) {
-            add_action("wp_loaded", function () {
-                $result = self::wac_fiter_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
-                if ($result) {
-                    $result = self::wac_multi_validate(self::$coupon, self::$post_id) ? true : false;
-                }
-                if ($result) {
-                    $result = self::wac_rules_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
-                }
-                self::$result = $result;
-                return $result;
-            });
-        } else {
-            $result = self::wac_fiter_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
-            if ($result) {
-                $result = self::wac_multi_validate(self::$coupon, self::$post_id) ? true : false;
-            }
-            if ($result) {
-                $result = self::wac_rules_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
-            }
-            self::$result = $result;
-            return $result;
+        $result = self::wac_fiter_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
+        if ($result) {
+            $result = self::wac_multi_validate(self::$coupon, self::$post_id) ? true : false;
         }
+        if ($result) {
+            $result = self::wac_rules_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
+        }
+        self::$result = $result;
         return self::$result;
     }
 
