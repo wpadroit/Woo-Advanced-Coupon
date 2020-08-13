@@ -17,7 +17,7 @@ class Wac_auto
 		if (is_admin()) {
 			return;
 		}
-		add_action('woocommerce_init', [$this, "wac_auto_coupon_on_cart"]);
+		add_action('wp_loaded', [$this, "wac_auto_coupon_on_cart"]);
 		add_action('woocommerce_cart_calculate_fees', [$this, "wac_auto_coupon_on_cart"]);
 		add_filter("woocommerce_product_get_price", [$this, "wac_change_price"], 10, 2);
 		add_filter("woocommerce_product_variation_get_price", [$this, "wac_variable_change_price"], 10, 2);
