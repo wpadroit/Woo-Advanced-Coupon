@@ -62,7 +62,16 @@ class Ajax
 	{
 		$post_id = $_POST["post_id"];
 		$post_meta = get_post_meta($post_id, "wac_coupon_main", true);
-		wp_send_json($post_meta);
+		$discount_type = [
+			"product" => [ "label" => "Product Adjustment" , "has_label" => false ],
+			"cart" => [ "label" => "Cart Adjustment" , "has_label" => true ],
+			"bulk" => [ "label" => "Bulk Discount" , "has_label" => true ]
+		];
+		$data = [
+			"post_meta" => $post_meta,
+			"discount_type" => apply_filters( "wac_discount_type", $discount_type )
+		];
+		wp_send_json($data);
 	}
 
 	public function wac_product_search()

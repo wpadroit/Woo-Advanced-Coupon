@@ -11,24 +11,17 @@ use WC_Discounts;
 class Validator
 {
 
-    static $coupon, $post_id, $wac_id, $result;
-
     static public function check($coupon = null, $post_id = null, $wac_id = null)
     {
-
-        self::$coupon = $coupon;
-        self::$post_id = $post_id;
-        self::$wac_id = $wac_id;
-
-        $result = self::wac_fiter_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
+        $result = self::wac_fiter_validate($coupon, $post_id, $wac_id) ? true : false;
         if ($result) {
-            $result = self::wac_multi_validate(self::$coupon, self::$post_id) ? true : false;
+            $result = self::wac_multi_validate($coupon, $post_id) ? true : false;
         }
         if ($result) {
-            $result = self::wac_rules_validate(self::$coupon, self::$post_id, self::$wac_id) ? true : false;
+            $result = self::wac_rules_validate($coupon, $post_id, $wac_id) ? true : false;
         }
-        self::$result = $result;
-        return self::$result;
+        $result = apply_filters( "wac_validator", $result );
+        return $result;
     }
 
     static public function wac_multi_validate($coupon, $post_id)

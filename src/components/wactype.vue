@@ -13,14 +13,14 @@
               <select id="discount" v-model="value" @change="changeType" name="wac_coupon_type">
                 <option
                   v-for="(discount, index) in discounts"
-                  :key="'wac_coupon_type_'+index"
-                  :value="discount.value"
+                  :key="index"
+                  :value="index"
                 >{{ discount.label }}</option>
               </select>
             </div>
           </div>
 
-          <div class="wac-col-3 wac_buttons" v-if="value !== 'product'">
+          <div class="wac-col-3 wac_buttons" v-if="show_label">
             <div class="wac-form">
               <label for="wac_discount_label">
                 <strong>Discount Label</strong>
@@ -42,11 +42,8 @@ export default {
       loading: true,
       value: "product",
       label: null,
-      discounts: [
-        { label: "Product Adjustment", value: "product" },
-        { label: "Cart Adjustment", value: "cart" },
-        { label: "Bulk Discount", value: "bulk" },
-      ],
+      show_label: false,
+      discounts: [],
     };
   },
   created() {
@@ -54,7 +51,15 @@ export default {
   },
   methods: {
     changeType() {
+      this.discount_label();
       this.$root.wac_form.type = this.value;
+    },
+    discount_label() {
+      if (this.discounts[this.value].has_label) {
+        this.show_label = true;
+      } else {
+        this.show_label = false;
+      }
     },
     getData() {
       this.loading = true;
@@ -66,11 +71,14 @@ export default {
       axios
         .post(wac_helper_obj.ajax_url, Qs.stringify(formData))
         .then((response) => {
-          if (response.data != [] && response.data != "") {
-            root.value = response.data.type;
-            root.label = response.data.label;
-            root.$root.wac_form.type = response.data.type;
+          if (response.data.post_meta != [] && response.data.post_meta != "") {
+            let post_meta = response.data.post_meta;
+            root.value = post_meta.type;
+            root.label = post_meta.label;
+            root.$root.wac_form.type = post_meta.type;
           }
+          root.discounts = response.data.discount_type;
+          root.discount_label();
           root.loading = false;
         })
         .catch((error) => {

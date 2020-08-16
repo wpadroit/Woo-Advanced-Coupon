@@ -28,8 +28,10 @@ class Wac_auto
 	 **/
 	public function wac_auto_coupon_on_cart()
 	{
+		do_action('wac_before_wp_loaded');
 		$this->wac_first_order();
 		$this->wac_auto_coupon();
+		do_action('wac_after_wp_loaded');
 	}
 
 	/**
