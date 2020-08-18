@@ -21,7 +21,7 @@
             </select>
           </div>
         </div>
-        <div class="wac-filter-list" v-if="wacfilter.type === 'products'">
+        <div class="wac-filter-list" v-if="checkItemsAvaiable(wacfilter.type)">
           <div class="wac-form">
             <label for="wac_filter_lists">
               <strong>Lists Type</strong>
@@ -35,14 +35,19 @@
             </select>
           </div>
         </div>
-        <div class="wac-col-3" v-if="wacfilter.type === 'products'">
+        <div class="wac-col-3" v-if="checkItemsAvaiable(wacfilter.type)">
           <div class="wac-form">
             <label for="wac_filter_products">
-              <strong>Select Products</strong>
+              <strong>{{ getItemsLabel(wacfilter.type) }}</strong>
             </label>
             <customSelect
               v-on:selectOptions="selectOptions"
-              :multiData="multiData"
+              :multiData="{
+                options: [],
+                searchable: true,
+                placeholder: 'Enter 3 words',
+                search_action: getItemsAction(wacfilter.type),
+              }"
               :defaultOption="wacfilter.items"
               :multiName="index"
             ></customSelect>
@@ -68,10 +73,7 @@ export default {
   data() {
     return {
       loading: true,
-      filterTypes: [
-        { label: "All Products", value: "all_products" },
-        { label: "Products", value: "products" },
-      ],
+      filterTypes: [],
       ListsTypes: [
         { label: "In List", value: "inList" },
         { label: "Not In List", value: "noList" },
@@ -83,18 +85,39 @@ export default {
           items: [],
         },
       ],
-      multiData: {
-        options: [],
-        searchable: true,
-        placeholder: "Search Product From Here",
-        search_action: "wac_product_search",
-      },
     };
   },
   created() {
     this.getFilters();
   },
   methods: {
+    checkItemsAvaiable(filter_type) {
+      let result = false;
+      this.filterTypes.forEach(element => {
+        if (element.value == filter_type) {
+          result = element.has_item;
+        }
+      });
+      return result;
+    },
+    getItemsLabel(filter_type) {
+      let label;
+      this.filterTypes.forEach(element => {
+        if (element.value == filter_type) {
+          label = element.items.label;
+        }
+      });
+      return label;
+    },
+    getItemsAction(filter_type) {
+      let action;
+      this.filterTypes.forEach(element => {
+        if (element.value == filter_type) {
+          action = element.items.action;
+        }
+      });
+      return action;
+    },
     selectOptions(value) {
       this.wacfilters[value.name].items = value.selectOption;
     },
@@ -137,9 +160,12 @@ export default {
       axios
         .post(wac_helper_obj.ajax_url, Qs.stringify(formData))
         .then((response) => {
-          if (response.data != [] && response.data != null) {
-            root.wacfilters = response.data;
+          if (response.data.post_meta != [] && response.data.post_meta != null) {
+            root.wacfilters = response.data.post_meta;
           }
+          response.data.filters_data.forEach(element => {
+            root.filterTypes.push(element);
+          });
           root.loading = false;
         })
         .catch((error) => {

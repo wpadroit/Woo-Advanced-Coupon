@@ -66,6 +66,9 @@ export default {
       this.autoLists = false;
     },
     search(e) {
+      if (this.text.length < 3) {
+        return;
+      }
       e.preventDefault();
       let formData = {
         action: this.multiData.search_action,

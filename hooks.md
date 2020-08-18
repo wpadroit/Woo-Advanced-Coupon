@@ -23,6 +23,14 @@ These Filters Hooks can be used for filter discount type fields options ;
 
 ---
 
+## wac_filters
+
+> Ajax.php:116
+
+These Filters Hooks can be used to add custom filters ;
+
+---
+
 
 
 

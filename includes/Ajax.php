@@ -105,7 +105,17 @@ class Ajax
 	{
 		$post_id = $_POST["post_id"];
 		$post_meta = get_post_meta($post_id, "wac_filters", true);
-		wp_send_json($post_meta);
+		$filters_data = [
+			[ "label" => "All Products", "value" => "all_products", "has_item" => false, "items" => null ],
+			[ "label" => "Products", "value" => "products", "has_item" => true, 
+				"items" => [ "action" => "wac_product_search", "label" => "Select Products" ] 
+			]
+		];
+		$send_data = [
+			"post_meta" => $post_meta,
+			"filters_data" => apply_filters( "wac_filters", $filters_data )
+		];
+		wp_send_json($send_data);
 	}
 
 	public function wac_save_filters()
